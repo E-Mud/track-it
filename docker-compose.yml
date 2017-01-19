@@ -1,0 +1,25 @@
+version: '2'
+services:
+  web:
+    build: .
+    command: nodemon --ignore client/ index
+    ports:
+      - "8080:3000"
+    volumes:
+      - .:/app/
+    environment:
+      - NODE_ENV=dev
+    links:
+      - db
+  production:
+    build: .
+    ports:
+      - "80:4000"
+    links:
+      - db
+  db:
+    image: mongo
+    volumes:
+      - dbvolume:/data/db
+volumes:
+  dbvolume:
