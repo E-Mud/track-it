@@ -1,0 +1,68 @@
+$base = 0.8rem
+
+padded(attr, mult)
+  padding-{attr}: $base * mult
+
+margined(attr, mult)
+  margin-{attr}: $base * mult
+
+sizes = {
+  base: 1
+  none: 0
+  small: 0.5
+  large: 2
+}
+
+for size, mult in sizes
+  .padded-{size}
+    padded(top, mult)
+    padded(right, mult)
+    padded(bottom, mult)
+    padded(left, mult)
+
+  .padded-{size}-horizontal
+    padded(right, mult)
+    padded(left, mult)
+
+  .padded-{size}-vertical
+    padded(top, mult)
+    padded(bottom, mult)
+
+  .margin-{size}
+    margined(top, mult)
+    margined(right, mult)
+    margined(bottom, mult)
+    margined(left, mult)
+
+  .margin-{size}-horizontal
+    margined(right, mult)
+    margined(left, mult)
+
+  .margin-{size}-vertical
+    margined(top, mult)
+    margined(bottom, mult)
+
+  for dir in (top right bottom left)
+    .padded-{size}-{dir}
+      padded(dir, mult)
+
+    .margin-{size}-{dir}
+      margined(dir, mult)
+
+.padded
+  @extend .padded-base
+
+.padded-horizontal
+  @extend .padded-base-horizontal
+
+.padded-vertical
+  @extend .padded-base-vertical
+
+.margin
+  @extend .margin-base
+
+.margin-horizontal
+  @extend .margin-base-horizontal
+
+.margin-vertical
+  @extend .margin-base-vertical

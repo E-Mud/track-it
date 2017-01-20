@@ -1,0 +1,23 @@
+@import './colors.styl'
+
+placeholder-color(color)
+  &::-webkit-input-placeholder
+     color color !important
+  &:-moz-placeholder  /* Firefox 18- */
+     color color !important
+  &::-moz-placeholder  /* Firefox 19+ */
+     color color !important
+  &:-ms-input-placeholder
+     color color !important
+
+input
+  display: block
+  border: none
+  border-bottom: 0.1rem solid rgba(0,0,0,0.14)
+  min-height: 2.8rem;
+  width: 100%;
+
+  &:active, &:focus
+    placeholder-color($primary-light)
+    outline: none
+    border-bottom: 0.1rem solid $primary
