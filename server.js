@@ -46,6 +46,9 @@ const clientPath = path.join(__dirname, 'client');
 app.get('/', (req, res) => {
   res.sendFile(path.join(clientPath, 'index.html'));
 });
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(clientPath,  'register', 'index.html'));
+});
 
 app.listen(port, '0.0.0.0', function onStart(err) {
   if (err) {
