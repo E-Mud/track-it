@@ -1,0 +1,27 @@
+@require './spacing.styl'
+
+button
+  height: 3.6rem
+  @extend .padded-large-horizontal
+  border: none
+  border-radius: 0.2rem
+  background-color: transparent
+  cursor: pointer
+
+  &:focus
+    outline: none
+
+  &:active
+    background: rgba(0,0,0,0.05)
+
+  &.primary
+    color: $primary
+
+  &.full-raised, &.full-raised.primary
+    box-shadow: 0 0.1rem 0.3rem rgba(0,0,0,0.12), 0 0.1rem 0.2rem rgba(0,0,0,0.24);
+    color: $white
+    background-color: $primary
+
+.button-group
+  button + button
+    @extend .margin-base-left
