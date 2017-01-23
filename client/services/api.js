@@ -22,7 +22,11 @@ class API {
   }
 
   post(url, body) {
-    return axios.post(url, body)
+    return axios({
+      method: 'post',
+      url,
+      data: body
+    })
   }
 }
 
@@ -31,13 +35,9 @@ const api = new API();
 axios.defaults.baseURL = '/api';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.put['Content-Type'] = 'application/json';
-//
-//
-// axios.interceptors.request.use(function (config) {
-//   // Do something before request is sent
-//   config.headers = Object.assign({'Authentication': 'Bearer ' + api.getAuthToken}, config.headers || {});
-//
-//   return config;
-// });
+
+axios.interceptors.response.use(undefined, function (error) {
+  return Promise.reject(error.response);
+});
 
 export default api;

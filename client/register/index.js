@@ -3,6 +3,12 @@ import {render} from 'react-dom';
 import css from './index.styl';
 import Card from '../components/card';
 import User from '../services/user';
+import Modal from '../components/modal';
+import AlertDialog from '../components/alert-dialog';
+
+const errorStrings = {
+  'used_username': 'The specified username is alredy used'
+}
 
 class RegisterPage extends React.Component {
   constructor() {
@@ -11,7 +17,7 @@ class RegisterPage extends React.Component {
       username: '',
       password: '',
       confirmPassword: '',
-      registerDisabled: false
+      registerDisabled: true
     }
   }
 
@@ -20,13 +26,25 @@ class RegisterPage extends React.Component {
     User.registerUser({
       username: this.state.username,
       password: this.state.password
-    }).finally(() => {
+    }).then(() => {
       this.setState({registerDisabled: false})
+
+      AlertDialog.show({
+        msg: 'User created succesfully'
+      })
+    }, ({data}) => {
+      this.setState({registerDisabled: false})
+
+      AlertDialog.show({
+        msg: errorStrings[data.msg]
+      })
     })
   }
 
   valueChanged(event) {
     this.state[event.target.name] = event.target.value
+
+    this.state.registerDisabled = !this.state.username || !this.state.password || this.state.password !== this.state.confirmPassword
 
     this.setState(this.state)
   }
@@ -36,7 +54,7 @@ class RegisterPage extends React.Component {
     let valueChanged = this.valueChanged.bind(this);
     return (
       <div className={'flex-container full-height background center-center'}>
-        <Card className={'flex-40'}>
+        <Card className={'flex-40 padded-base'}>
           <input
             type='email'
             value={this.state.username}
