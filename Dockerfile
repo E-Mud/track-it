@@ -1,6 +1,6 @@
 FROM node:6.9
 
-RUN npm install nodemon webpack -g
+RUN npm install nodemon webpack mocha -g
 
 WORKDIR /app
 COPY package.json /app/

@@ -9,12 +9,31 @@ services:
       - .:/app/
     environment:
       - NODE_ENV=dev
+      - DB_HOST=db
+      - DB_PORT=27017
+      - DB_DATABASE=trackitdb
+    links:
+      - db
+  tdd:
+    build: .
+    command: npm test
+    volumes:
+      - .:/app/
+    environment:
+      - NODE_ENV=test
+      - DB_HOST=db
+      - DB_PORT=27017
+      - DB_DATABASE=trackitdb
     links:
       - db
   production:
     build: .
     ports:
       - "80:4000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=27017
+      - DB_DATABASE=trackitdb
     links:
       - db
   db:
