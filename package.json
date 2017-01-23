@@ -18,11 +18,12 @@
     "url": "https://gitlab.com/E-Mud/track-it/issues"
   },
   "dependencies": {
+    "axios": "^0.15.3",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.3.13",
     "bcrypt": "^1.0.2",
-    "cookie-parser": "~1.4.3",
     "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
     "express": "^4.13.3",
     "mongodb": "^2.2.21",
     "monk": "^3.1.3",
