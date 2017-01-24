@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import Auth from './server/users/auth';
 import usersRouter from './server/users/user-router';
+import tracksRouter from './server/tracks/track-router';
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
 const port = isDeveloping ? 3000 : process.env.PORT;
@@ -13,6 +14,15 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use('/api/users', usersRouter);
+app.use('/api', (req, res, next) => {
+  const authToken = req.get('Authorization').match(/Bearer\s(.+)/)
+  
+  Auth.getPayload(authToken[1]).then(({user}) => {
+    req.user = user
+    next();
+  })
+})
+app.use('/api/tracks', tracksRouter);
 
 if (isDeveloping) {
   let webpack = require('webpack');

@@ -9,11 +9,14 @@ import app from '../server.js';
 chai.use(chaiAsPromised);
 chai.use(chaiHTTP);
 
+const authToken = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjU4ODc5NTUyOWRmYzc5MDAxNmQ1ZGYwMSIsInVzZXJuYW1lIjoiYWxiZXJ0b0B0ZXN0LmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJEM0V3pWSVVtdDNLMzYyTFlrbXViVHUyWURVT3N4bjRkaGFhMFlvLnpkYVBYaUE1NkpxZ1ltIn0sImlhdCI6MTQ4NTI4MDU5NH0.ZMnP1lmuOjj2ZfZ5953aPmWEXYmhe0PdHQP5fcNw3CM'
+const userId = '588795529dfc790016d5df01'
+
 describe('TrackIt', () => {
-  var collection = null;
+  var userCollection = null;
 
   const insertUser = (user) => {
-    return collection.insert(user)
+    return userCollection.insert(user)
   }
 
   const doLoginRequest = (user, body) => {
@@ -26,9 +29,9 @@ describe('TrackIt', () => {
   }
 
   beforeEach((done) => {
-    collection = DatabaseConnection.connection().get('users');
+    userCollection = DatabaseConnection.connection().get('users');
 
-    collection.remove({}).then(() => done())
+    userCollection.remove({}).then(() => done())
   });
 
   describe('/users', () => {
@@ -106,6 +109,31 @@ describe('TrackIt', () => {
           .catch((res) => {
             res.should.have.status(400);
             res.response.body.should.deep.equal({msg: 'invalid_password'})
+          })
+      })
+    })
+  })
+
+  describe('/tracks', () => {
+    var trackCollection = null;
+
+    beforeEach((done) => {
+      trackCollection = DatabaseConnection.connection().get('tracks');
+
+      trackCollection.remove({}).then(() => done())
+    });
+
+    describe('creation', () => {
+      it('creates track with current user\'s id', () => {
+        return chai.request(app)
+          .post('/api/tracks')
+          .set('Authorization', authToken)
+          .send({url: 'https://twitter.com/e_muddy/status/30091501105068441'})
+          .then((res) => {
+            res.body.userId.should.equal(userId)
+            return trackCollection.findOne({'_id': res.body._id}).then((createdTrack) => {
+              createdTrack.userId.should.equal(userId)
+            })
           })
       })
     })
