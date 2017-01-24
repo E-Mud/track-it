@@ -4,6 +4,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import chaiHTTP from 'chai-http';
 var should = chai.should();
+var expect = chai.expect;
 import app from '../server.js';
 chai.use(chaiAsPromised);
 chai.use(chaiHTTP);
@@ -32,6 +33,7 @@ describe('TrackIt API', () => {
             res.should.have.status(200);
             res.body._id.should.exist;
             res.body.username.should.equal('alberto@test.com')
+            expect(res.body.password).to.not.exist
           })
       })
 

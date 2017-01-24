@@ -47,11 +47,13 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(clientPath,  'login', 'index.html'));
 });
 
-app.listen(port, '0.0.0.0', function onStart(err) {
-  if (err) {
-    console.log(err);
-  }
-  console.info('==> 🌎 Listening on port %s. Open up http://0.0.0.0:%s/ in your browser.', port, port);
-});
+if(process.env.NODE_ENV !== 'test'){
+  app.listen(port, '0.0.0.0', function onStart(err) {
+    if (err) {
+      console.log(err);
+    }
+    console.info('==> 🌎 Listening on port %s. Open up http://0.0.0.0:%s/ in your browser.', port, port);
+  });  
+}
 
 export default app;
