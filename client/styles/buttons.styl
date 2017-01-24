@@ -26,6 +26,10 @@ button
     color: $white
     background-color: $primary
 
+    &[disabled]
+      color: rgba(0,0,0,$disabledTextOpacity)
+      background-color: rgba(0,0,0,$disabledTextOpacity/2)
+
 .button-group
   button + button
     @extend .margin-base-left
