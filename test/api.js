@@ -9,23 +9,36 @@ import app from '../server.js';
 chai.use(chaiAsPromised);
 chai.use(chaiHTTP);
 
-describe('TrackIt API', () => {
+describe('TrackIt', () => {
+  var collection = null;
+
+  const insertUser = (user) => {
+    return collection.insert(user)
+  }
+
+  const doLoginRequest = (user, body) => {
+    return insertUser(user).then(() => {
+      return chai.request(app)
+      .post('/api/users/login')
+      .set('Content-Type', 'application/json')
+      .send(body)
+    })
+  }
+
+  beforeEach((done) => {
+    collection = DatabaseConnection.connection().get('users');
+
+    collection.remove({}).then(() => done())
+  });
+
   describe('/users', () => {
     describe('/register', () => {
-      var collection = null;
-
       const doRegisterRequest = (body) => {
         return chai.request(app)
           .post('/api/users/register')
           .set('Content-Type', 'application/json')
           .send(body)
       }
-
-      beforeEach((done) => {
-        collection = DatabaseConnection.connection().get('users');
-
-        collection.remove({}).then(() => done())
-      });
 
       it('returns the created user', () => {
         return doRegisterRequest({ password: '123', username: 'alberto@test.com' })
@@ -62,25 +75,9 @@ describe('TrackIt API', () => {
         username: 'alberto@test.com',
         password: '$2a$10$C4WzVIUmt3K362LYkmubTu2YDUOsxn4dhaa0Yo.zdaPXiA56JqgYm'
       }
-      var collection = null;
-
-      const doLoginRequest = (body) => {
-        return collection.insert(user).then(() => {
-          return chai.request(app)
-            .post('/api/users/login')
-            .set('Content-Type', 'application/json')
-            .send(body)
-        })
-      }
-
-      beforeEach((done) => {
-        collection = DatabaseConnection.connection().get('users');
-
-        collection.remove({}).then(() => done())
-      });
 
       it('returns the created user', () => {
-        return doLoginRequest({username: user.username, password: 'myPass' })
+        return doLoginRequest(user, {username: user.username, password: 'myPass' })
           .then(function (res) {
             res.should.have.status(200);
             res.body.user.should.exist;
@@ -89,27 +86,60 @@ describe('TrackIt API', () => {
       })
 
       it('sets authToken cookie', () => {
-        return doLoginRequest({username: user.username, password: 'myPass' })
-          .then(function (res) {
+        return doLoginRequest(user, {username: user.username, password: 'myPass' })
+          .then((res) => {
             expect(res).to.have.cookie('authToken');
             expect(res).to.have.cookie('authToken', res.body.authToken);
           })
       })
 
       it('returns an error for invalid user', () => {
-        return doLoginRequest({username: '2' + user.username, password: 'myPass' })
-          .catch(function (res) {
+        return doLoginRequest(user, {username: '2' + user.username, password: 'myPass' })
+          .catch((res) => {
             res.should.have.status(400);
             res.response.body.should.deep.equal({msg: 'user_not_found'})
           })
       })
 
       it('returns an error for invalid password', () => {
-        return doLoginRequest({username: user.username, password: 'myPass2' })
-          .catch(function (res) {
+        return doLoginRequest(user, {username: user.username, password: 'myPass2' })
+          .catch((res) => {
             res.should.have.status(400);
             res.response.body.should.deep.equal({msg: 'invalid_password'})
           })
+      })
+    })
+  })
+
+  describe('main page', () => {
+    it('redirect to login if no authToken cookie', () => {
+      return chai.request(app)
+        .get('/').then((res) => {
+          res.should.redirect
+        })
+    })
+
+    it('redirect to login if invalid authToken cookie', () => {
+      return chai.request(app)
+        .get('/').set('Cookie', 'authToken=123').then((res) => {
+          res.should.redirect
+        })
+    })
+
+    it('doesn\'t redirect to login if valid authToken cookie', () => {
+      let agent = chai.request.agent(app)
+      return insertUser({
+        username: 'alberto@test.com',
+        password: '$2a$10$C4WzVIUmt3K362LYkmubTu2YDUOsxn4dhaa0Yo.zdaPXiA56JqgYm'
+      }).then(() => {
+        return agent
+          .post('/api/users/login')
+          .set('Content-Type', 'application/json')
+          .send({username: 'alberto@test.com', password: 'myPass'})
+      }).then(() => {
+        return agent.get('/')
+      }).then((res) => {
+        res.should.not.redirect
       })
     })
   })

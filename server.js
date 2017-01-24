@@ -1,7 +1,9 @@
 import path from 'path';
 import express from 'express';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
+import Auth from './server/users/auth';
 import usersRouter from './server/users/user-router';
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
@@ -9,6 +11,7 @@ const port = isDeveloping ? 3000 : process.env.PORT;
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use('/api/users', usersRouter);
 
 if (isDeveloping) {
@@ -40,9 +43,18 @@ if (isDeveloping) {
 }
 
 const clientPath = path.join(__dirname, 'client');
+
+app.get('/', (req, res) => {
+  Auth.getPayload(req.cookies.authToken).then(
+    (payload) => res.sendFile(path.join(clientPath, 'main', 'index.html')),
+    (error) => res.redirect('/login')
+  )
+});
+
 app.get('/register', (req, res) => {
   res.sendFile(path.join(clientPath,  'register', 'index.html'));
 });
+
 app.get('/login', (req, res) => {
   res.sendFile(path.join(clientPath,  'login', 'index.html'));
 });
@@ -53,7 +65,7 @@ if(process.env.NODE_ENV !== 'test'){
       console.log(err);
     }
     console.info('==> 🌎 Listening on port %s. Open up http://0.0.0.0:%s/ in your browser.', port, port);
-  });  
+  });
 }
 
 export default app;

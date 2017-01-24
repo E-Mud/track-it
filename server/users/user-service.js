@@ -1,6 +1,6 @@
 import DatabaseConnection from '../db/database-connection.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import Auth from './auth';
 
 const collection = DatabaseConnection.connection().get('users');
 
@@ -39,7 +39,7 @@ export default {
       if(!user){
         throw new Error('user_not_found')
       }else if(bcrypt.compareSync(userToLogin.password, user.password)){
-        const authToken = jwt.sign({user}, 'secret')
+        const authToken = Auth.createToken(user)
         return {authToken, user}
       }else{
         throw new Error('invalid_password')
