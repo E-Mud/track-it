@@ -9,47 +9,38 @@ const errorStrings = {
   'used_username': 'The specified username is alredy used'
 }
 
-class RegisterPage extends React.Component {
+class LoginPage extends React.Component {
   constructor() {
     super();
     this.state = {
       username: '',
       password: '',
-      confirmPassword: '',
-      registerDisabled: true
+      loginDisabled: true
     }
   }
 
   buttonClicked() {
-    this.setState({registerDisabled: true})
-    User.registerUser({
+    this.setState({loginDisabled: true})
+    User.login({
       username: this.state.username,
       password: this.state.password
     }).then(() => {
-      this.setState({registerDisabled: false})
-
-      AlertDialog.show({
-        msg: 'User created succesfully'
-      })
+      this.setState({loginDisabled: false})
     }, ({data}) => {
-      this.setState({registerDisabled: false})
-
-      AlertDialog.show({
-        msg: errorStrings[data.msg]
-      })
+      this.setState({loginDisabled: false})
     })
   }
 
   valueChanged(event) {
     this.state[event.target.name] = event.target.value
 
-    this.state.registerDisabled = !this.state.username || !this.state.password || this.state.password !== this.state.confirmPassword
+    this.state.loginDisabled = !this.state.username || !this.state.password
 
     this.setState(this.state)
   }
 
   render() {
-    let registerButtonDisabled = this.state.registerDisabled ? 'disabled' : '';
+    let loginButtonDisabled = this.state.loginDisabled ? 'disabled' : '';
     let valueChanged = this.valueChanged.bind(this);
     return (
       <div className={'flex-container full-height background center-center'}>
@@ -70,16 +61,8 @@ class RegisterPage extends React.Component {
               name={'password'}
               placeholder='Password' />
           </div>
-          <div className={'padded-base'}>
-            <input
-              type='password'
-              value={this.state.confirmPassword}
-              onChange={valueChanged}
-              name={'confirmPassword'}
-              placeholder='Confirm Password' />
-          </div>
           <div className={'flex-container padded-large-top button-group end-start'}>
-            <button onClick={this.buttonClicked.bind(this)} className={'full-raised primary'} disabled={registerButtonDisabled}>REGISTER</button>
+            <button onClick={this.buttonClicked.bind(this)} className={'full-raised primary'} disabled={loginButtonDisabled}>SIGN IN</button>
           </div>
         </Card>
       </div>
@@ -87,4 +70,4 @@ class RegisterPage extends React.Component {
   }
 }
 
-render(<RegisterPage/>, document.getElementById('main-container'));
+render(<LoginPage/>, document.getElementById('main-container'));

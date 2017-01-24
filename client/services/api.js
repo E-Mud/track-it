@@ -9,12 +9,18 @@ class API {
     this.authToken = token
   }
 
+  saveAuthToken(token) {
+    this.setAuthToken(token)
+    window.localStorage.setItem('authToken', this.getAuthToken())
+  }
+
   getAuthToken() {
     return this.authToken
   }
 
   clearAuthToken() {
     this.authToken = null
+    window.localStorage.removeItem('authToken')
   }
 
   get(url) {
@@ -39,5 +45,7 @@ axios.defaults.headers.put['Content-Type'] = 'application/json';
 axios.interceptors.response.use(undefined, function (error) {
   return Promise.reject(error.response);
 });
+
+api.setAuthToken(localStorage.getItem('authToken'))
 
 export default api;

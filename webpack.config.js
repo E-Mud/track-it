@@ -2,23 +2,23 @@ var path = require('path');
 var webpack = require('webpack');
 
 var javascriptEntryPath = path.resolve(__dirname, 'client', 'index.js');
-var htmlEntryPath = path.resolve(__dirname, 'client', 'index.html');
 var buildPath = path.resolve(__dirname, 'public', 'build');
+var clientDir = path.resolve(__dirname, 'client')
 
 let pages = {
-  example: {
-    js: path.resolve(__dirname, 'client', 'index.js')
+  login: {
+    js: path.resolve(clientDir, 'login', 'index.js')
   },
   register: {
-    js: path.resolve(__dirname, 'client', 'register', 'index.js')
+    js: path.resolve(clientDir, 'register', 'index.js')
   }
 }
 
 module.exports = {
   entry: {
-    example: [
+    login: [
       'webpack-hot-middleware/client?reload=true',
-      pages.example.js
+      pages.login.js
     ],
     register: [
       'webpack-hot-middleware/client?reload=true',
