@@ -54,28 +54,31 @@ class RegisterPage extends React.Component {
     let valueChanged = this.valueChanged.bind(this);
     return (
       <div className={'flex-container full-height background center-center'}>
-        <Card className={'flex-40 padded-base'}>
-          <input
-            type='email'
-            value={this.state.username}
-            onChange={valueChanged}
-            name={'username'}
-            className={'margin-base-bottom'}
-            placeholder='Email' />
-          <input
-            type='password'
-            value={this.state.password}
-            onChange={valueChanged}
-            name={'password'}
-            className={'margin-base-bottom'}
-            placeholder='Password' />
-          <input
-            type='password'
-            value={this.state.confirmPassword}
-            onChange={valueChanged}
-            name={'confirmPassword'}
-            className={'margin-base-bottom'}
-            placeholder='Confirm Password' />
+        <Card className={'flex-25 padded-base'}>
+          <div className={'padded-base'}>
+            <input
+              type='email'
+              value={this.state.username}
+              onChange={valueChanged}
+              name={'username'}
+              placeholder='Email' />
+          </div>
+          <div className={'padded-base'}>
+            <input
+              type='password'
+              value={this.state.password}
+              onChange={valueChanged}
+              name={'password'}
+              placeholder='Password' />
+          </div>
+          <div className={'padded-base'}>
+            <input
+              type='password'
+              value={this.state.confirmPassword}
+              onChange={valueChanged}
+              name={'confirmPassword'}
+              placeholder='Confirm Password' />
+          </div>
           <div className={'flex-container padded-large-top button-group end-start'}>
             <button onClick={this.buttonClicked.bind(this)} className={'primary'} disabled={registerButtonDisabled}>REGISTER</button>
           </div>
