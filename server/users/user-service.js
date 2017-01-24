@@ -1,5 +1,6 @@
 import DatabaseConnection from '../db/database-connection.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const collection = DatabaseConnection.connection().get('users');
 
@@ -33,7 +34,16 @@ export default {
     })
   },
 
-  test: () => {
-    return Promise.resolve(7);
+  login: (userToLogin) => {
+    return UserDAO.getUserByUsername(userToLogin.username).then((user) => {
+      if(!user){
+        throw new Error('user_not_found')
+      }else if(bcrypt.compareSync(userToLogin.password, user.password)){
+        const authToken = jwt.sign({user}, 'secret')
+        return {authToken, user}
+      }else{
+        throw new Error('invalid_password')
+      }
+    })
   }
 }

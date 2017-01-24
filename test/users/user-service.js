@@ -55,4 +55,57 @@ describe('UserService', () => {
       })
     })
   })
+
+  describe('on login', () => {
+    const user = {
+      username: 'alberto@test.com',
+      password: 'myPass'
+    }, encryptedPassword = '$2a$10$C4WzVIUmt3K362LYkmubTu2YDUOsxn4dhaa0Yo.zdaPXiA56JqgYm'
+
+    var collection = null;
+
+    const insertUser = () => {
+      return collection.insert({username: user.username, password: encryptedPassword})
+    }
+
+    beforeEach((done) => {
+      collection = DatabaseConnection.connection().get('users');
+
+      collection.remove({}).then(() => done())
+    });
+
+    it('returns the user', () => {
+      return insertUser().then((insertedUser) => {
+        return UserService.login(user).then((res) => {
+          res.user.should.deep.equal(insertedUser);
+        })
+      })
+    })
+
+    it('returns the authToken', () => {
+      return insertUser().then(() => {
+        return UserService.login(user).then((res) => {
+          res.authToken.should.exist;
+        })
+      })
+    })
+
+    it('throws invalid_password if password is invalid', () => {
+      return insertUser().then(() => {
+        return UserService.login({
+          username: user.username,
+          password: 'ñeeeee'
+        }).should.be.rejectedWith('invalid_password');
+      })
+    })
+
+    it('throws user_not_found if user doesn\'t exist', () => {
+      return insertUser().then(() => {
+        return UserService.login({
+          username: user.username + 'hey',
+          password: 'myPass'
+        }).should.be.rejectedWith('user_not_found');
+      })
+    })
+  })
 })
