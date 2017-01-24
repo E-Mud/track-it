@@ -62,7 +62,9 @@ class LoginPage extends React.Component {
               name={'password'}
               placeholder='Password' />
           </div>
-          <div className={'flex-container padded-large-top button-group end-start'}>
+          <div className={'flex-container padded-large-top button-group start-end'}>
+            <a href={'/register'} className={'margin-base-horizontal sm-text'}>Not a member yet?</a>
+            <span className={'flex'} />
             <button onClick={this.buttonClicked.bind(this)} className={'full-raised primary'} disabled={loginButtonDisabled}>SIGN IN</button>
           </div>
         </Card>
