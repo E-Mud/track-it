@@ -1,5 +1,6 @@
 import DatabaseConnection from '../server/db/database-connection';
 import UserService from '../server/users/user-service';
+import monk from 'monk';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import chaiHTTP from 'chai-http';
@@ -11,6 +12,7 @@ chai.use(chaiHTTP);
 
 const authToken = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjU4ODc5NTUyOWRmYzc5MDAxNmQ1ZGYwMSIsInVzZXJuYW1lIjoiYWxiZXJ0b0B0ZXN0LmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJEM0V3pWSVVtdDNLMzYyTFlrbXViVHUyWURVT3N4bjRkaGFhMFlvLnpkYVBYaUE1NkpxZ1ltIn0sImlhdCI6MTQ4NTI4MDU5NH0.ZMnP1lmuOjj2ZfZ5953aPmWEXYmhe0PdHQP5fcNw3CM'
 const userId = '588795529dfc790016d5df01'
+const userObjectId = monk.id(userId)
 
 describe('TrackIt', () => {
   var userCollection = null;
@@ -132,9 +134,38 @@ describe('TrackIt', () => {
           .then((res) => {
             res.body.userId.should.equal(userId)
             return trackCollection.findOne({'_id': res.body._id}).then((createdTrack) => {
-              createdTrack.userId.should.equal(userId)
+              createdTrack.userId.toString().should.equal(userId)
             })
           })
+      })
+    })
+
+    describe('reading', () => {
+      const otherUserId = userId.replace('0', 'f')
+      const insertedTracks = [
+        {_id: '123456789012345678901230', userId: userObjectId, url: 'http://...'},
+        {_id: '123456789012345678901231', userId: userObjectId, url: 'http://...'},
+        {_id: '123456789012345678901232', userId: monk.id(otherUserId), url: 'http://...'},
+        {_id: '123456789012345678901233', userId: monk.id(otherUserId), url: 'http://...'}
+      ]
+
+      const readTracks = () => {
+        return trackCollection.insert(insertedTracks).then(() => {
+          return chai.request(app)
+            .get('/api/tracks')
+            .set('Authorization', authToken)
+        })
+      }
+
+      it('reads user\'s tracks', () => {
+        const expectedTracks = [
+          {_id: '123456789012345678901230', userId: userId, url: 'http://...'},
+          {_id: '123456789012345678901231', userId: userId, url: 'http://...'}
+        ]
+
+        return readTracks().then((res) => {
+          res.body.should.deep.equal(expectedTracks)
+        })
       })
     })
   })

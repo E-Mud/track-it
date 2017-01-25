@@ -4,9 +4,15 @@ import TrackService from './track-service';
 
 router.post('/', (req, res, next) => {
   req.body.userId = req.user._id;
-  
+
   TrackService.createTrack(req.body).then(
     (createdTrack) => res.json(createdTrack));
+});
+
+router.get('/', (req, res, next) => {
+  console.log(req.user)
+  TrackService.getTracksByUserId(req.user._id).then(
+    (tracks) => res.json(tracks));
 });
 
 module.exports = router;
