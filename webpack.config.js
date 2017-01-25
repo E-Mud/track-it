@@ -6,6 +6,9 @@ var buildPath = path.resolve(__dirname, 'public', 'build');
 var clientDir = path.resolve(__dirname, 'client')
 
 let pages = {
+  main: {
+    js: path.resolve(clientDir, 'main', 'index.js')
+  },
   login: {
     js: path.resolve(clientDir, 'login', 'index.js')
   },
@@ -16,6 +19,10 @@ let pages = {
 
 module.exports = {
   entry: {
+    main: [
+      'webpack-hot-middleware/client?reload=true',
+      pages.main.js
+    ],
     login: [
       'webpack-hot-middleware/client?reload=true',
       pages.login.js

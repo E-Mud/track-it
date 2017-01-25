@@ -1,8 +1,8 @@
 import React from 'react';
 import {render} from 'react-dom';
 import css from './index.styl';
-import Card from '../components/card';
 import User from '../services/user';
+import Card from '../components/card';
 import AlertDialog from '../components/alert-dialog';
 import FormFields from '../components/form-fields';
 
@@ -29,6 +29,7 @@ class LoginPage extends React.Component {
       password: this.state.user.password
     }).then(() => {
       this.setState({loginDisabled: false})
+      window.location.href = '/'
     }, ({data}) => {
       this.setState({loginDisabled: false})
     })
