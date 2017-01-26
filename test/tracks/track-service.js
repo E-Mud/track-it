@@ -1,5 +1,6 @@
 import DatabaseConnection from '../../server/db/database-connection';
 import TrackService from '../../server/tracks/track-service';
+import SocialAccountService from '../../server/social/social-account-service';
 import monk from 'monk';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -38,7 +39,7 @@ describe('TrackService', () => {
         return TrackService.createTrack(trackToCreate).then((createdTrack) => {
           trackToCreate._id = createdTrack._id
 
-          createdTrack.type.should.equal(TrackService.TYPE.TWITTER)
+          createdTrack.type.should.equal(SocialAccountService.TYPE.TWITTER)
           trackToCreate.type = createdTrack.type
 
           createdTrack.userId.toString().should.equal(trackToCreate.userId)

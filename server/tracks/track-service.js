@@ -1,19 +1,14 @@
 import monk from 'monk';
 import DatabaseConnection from '../db/database-connection.js';
+import SocialAccountService from '../social/social-account-service.js';
 
 const collection = DatabaseConnection.connection().get('tracks');
 
-const TYPE = {
-  TWITTER: 'twitter'
-}
-
 const typeForUrl = (url) => {
-  return TYPE.TWITTER
+  return SocialAccountService.TYPE.TWITTER
 }
 
 export default {
-  TYPE,
-
   createTrack: (track) => {
     const trackToCreate = Object.assign({type: typeForUrl(track.url)}, track)
 

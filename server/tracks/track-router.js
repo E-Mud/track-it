@@ -10,7 +10,6 @@ router.post('/', (req, res, next) => {
 });
 
 router.get('/', (req, res, next) => {
-  console.log(req.user)
   TrackService.getTracksByUserId(req.user._id).then(
     (tracks) => res.json(tracks));
 });
