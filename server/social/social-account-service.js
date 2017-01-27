@@ -4,20 +4,10 @@ import TwitterService from './twitter-service';
 
 const collection = DatabaseConnection.connection().get('social_accounts');
 
-const TYPE = {
-  TWITTER: 'twitter'
-}
-
 export default {
-  TYPE,
+  TYPE: {
+    TWITTER: TwitterService.type()
+  },
 
-  Twitter: TwitterService,
-
-  createAccount: (account) => {
-    const accountToCreate = Object.assign({}, account)
-
-    accountToCreate.userId = monk.id(accountToCreate.userId)
-
-    return collection.insert(accountToCreate)
-  }
+  Twitter: new TwitterService()
 }

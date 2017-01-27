@@ -1,6 +1,9 @@
 import DatabaseConnection from '../server/db/database-connection';
 import UserService from '../server/users/user-service';
+import SocialAccountService from '../server/social/social-account-service';
 import monk from 'monk';
+import twitterApi from 'node-twitter-api';
+import sinon from 'sinon';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import chaiHTTP from 'chai-http';
@@ -10,9 +13,18 @@ import app from '../server.js';
 chai.use(chaiAsPromised);
 chai.use(chaiHTTP);
 
-const authToken = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjU4ODc5NTUyOWRmYzc5MDAxNmQ1ZGYwMSIsInVzZXJuYW1lIjoiYWxiZXJ0b0B0ZXN0LmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJEM0V3pWSVVtdDNLMzYyTFlrbXViVHUyWURVT3N4bjRkaGFhMFlvLnpkYVBYaUE1NkpxZ1ltIn0sImlhdCI6MTQ4NTI4MDU5NH0.ZMnP1lmuOjj2ZfZ5953aPmWEXYmhe0PdHQP5fcNw3CM'
+const authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjU4ODc5NTUyOWRmYzc5MDAxNmQ1ZGYwMSIsInVzZXJuYW1lIjoiYWxiZXJ0b0B0ZXN0LmNvbSIsInBhc3N3b3JkIjoiJDJhJDEwJEM0V3pWSVVtdDNLMzYyTFlrbXViVHUyWURVT3N4bjRkaGFhMFlvLnpkYVBYaUE1NkpxZ1ltIn0sImlhdCI6MTQ4NTI4MDU5NH0.ZMnP1lmuOjj2ZfZ5953aPmWEXYmhe0PdHQP5fcNw3CM'
+const bearerToken = 'Bearer ' + authToken
 const userId = '588795529dfc790016d5df01'
 const userObjectId = monk.id(userId)
+
+sinon.config = {
+  injectIntoThis: true,
+  injectInto: null,
+  properties: ["stub"],
+  useFakeTimers: false,
+  useFakeServer: false
+}
 
 describe('TrackIt', () => {
   var userCollection = null;
@@ -129,7 +141,7 @@ describe('TrackIt', () => {
       it('creates track with current user\'s id', () => {
         return chai.request(app)
           .post('/api/tracks')
-          .set('Authorization', authToken)
+          .set('Authorization', bearerToken)
           .send({url: 'https://twitter.com/e_muddy/status/30091501105068441'})
           .then((res) => {
             res.body.userId.should.equal(userId)
@@ -153,7 +165,7 @@ describe('TrackIt', () => {
         return trackCollection.insert(insertedTracks).then(() => {
           return chai.request(app)
             .get('/api/tracks')
-            .set('Authorization', authToken)
+            .set('Authorization', bearerToken)
         })
       }
 
@@ -199,6 +211,65 @@ describe('TrackIt', () => {
         return agent.get('/')
       }).then((res) => {
         res.should.not.redirect
+      })
+    })
+  })
+
+  describe('twitter', () => {
+    var accountCollection = null, stub = null;
+
+    beforeEach((done) => {
+      stub = sinon.stub(twitterApi.prototype, 'getRequestToken')
+      stub.callsArgWith(0, null, 'token', 'secret')
+
+      accountCollection = DatabaseConnection.connection().get('social_accounts');
+
+      accountCollection.remove({}).then(() => done())
+    });
+
+    afterEach(() => {
+      if(stub){
+        stub.restore()
+      }
+    })
+
+    describe('requiring access', () => {
+      it('redirects to twitter authorize page', (done) => {
+        chai.request(app)
+          .get('/twitter/access').set('Cookie', 'authToken=' + authToken)
+          .end(function(err, res) {
+            res.should.redirectTo('https://api.twitter.com/oauth/authenticate?oauth_token=token')
+            done()
+          });
+      })
+
+      it('creates a pending social account', () => {
+        const expectedAccount = {
+          userId: userObjectId,
+          pending: true,
+          type: SocialAccountService.TYPE.TWITTER,
+          auth: {
+            requestSecret: 'secret',
+            requestToken: 'token'
+          },
+          userData: null
+        }
+
+        return chai.request(app)
+          .get('/twitter/access').set('Cookie', 'authToken=' + authToken)
+          .then(
+            () => Promise.reject('should have failed'),
+            () => {
+              return accountCollection.find({}).then((foundAccounts) => {
+                expect(foundAccounts).to.have.lengthOf(1);
+
+                const account = foundAccounts[0];
+                expectedAccount._id = account._id;
+
+                expect(account).to.deep.equal(expectedAccount)
+              })
+            }
+          )
       })
     })
   })

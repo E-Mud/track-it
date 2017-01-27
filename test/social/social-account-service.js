@@ -9,57 +9,15 @@ chai.use(chaiAsPromised);
 import bcrypt from 'bcrypt';
 
 describe('SocialAccountService', () => {
-  const user = {_id: monk.id('f23456789012345678901234'), username: 'username'},
-    otherUser = {_id: monk.id('f23456789012345678901233'), username: 'other'};
+  const user = {_id: monk.id('f23456789012345678901234'), username: 'username'};
 
-  var collection = null, userCollection = null;
-
-  const insertUser = () => {
-    return userCollection.insert(Object.assign({}, user))
-  }
+  var collection = null;
 
   beforeEach((done) => {
     collection = DatabaseConnection.connection().get('social_accounts');
-    userCollection = DatabaseConnection.connection().get('users');
 
-    Promise.all([
-      collection.remove({}),
-      userCollection.remove({})
-    ]).then(() => done())
+    collection.remove({}).then(() => done())
   });
-
-  describe('on social account creation', () => {
-    it('creates a new social account', () => {
-      return insertUser().then(() => {
-        let accountToCreate = {
-          userId: 'f23456789012345678901234',
-          pending: true,
-          type: SocialAccountService.TYPE.TWITTER,
-          auth: {
-            requestSecret: '1234'
-          },
-          userData: null
-        }
-
-        return SocialAccountService.createAccount(accountToCreate).then((createdAccount) => {
-          accountToCreate._id = createdAccount._id
-
-          createdAccount.userId.toString().should.equal(accountToCreate.userId)
-          accountToCreate.userId = createdAccount.userId
-
-          createdAccount.should.deep.equal(accountToCreate)
-
-          return collection.find({}).then((result) => {
-            result.length.should.equal(1);
-
-            let socialAccount = result[0];
-
-            socialAccount.should.deep.equal(createdAccount)
-          })
-        })
-      })
-    })
-  })
 
   describe('on social account reading', () => {
     const pendingAccounts = [
@@ -68,7 +26,8 @@ describe('SocialAccountService', () => {
         pending: true,
         type: SocialAccountService.TYPE.TWITTER,
         auth: {
-          requestSecret: '1231'
+          requestSecret: '1231',
+          requestToken: '3121'
         },
         userData: null
       },
@@ -77,7 +36,8 @@ describe('SocialAccountService', () => {
         pending: true,
         type: SocialAccountService.TYPE.TWITTER,
         auth: {
-          requestSecret: '1232'
+          requestSecret: '1232',
+          requestToken: '3221'
         },
         userData: null
       }

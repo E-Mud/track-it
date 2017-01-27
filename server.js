@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import Auth from './server/users/auth';
 import usersRouter from './server/users/user-router';
 import tracksRouter from './server/tracks/track-router';
+import socialAccountRouter from './server/social/social-account-router';
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
 const port = isDeveloping ? 3000 : process.env.PORT;
@@ -16,7 +17,7 @@ app.use(cookieParser());
 app.use('/api/users', usersRouter);
 app.use('/api', (req, res, next) => {
   const authToken = req.get('Authorization').match(/Bearer\s(.+)/)
-  
+
   Auth.getPayload(authToken[1]).then(({user}) => {
     req.user = user
     next();
@@ -54,19 +55,44 @@ if (isDeveloping) {
 
 const clientPath = path.join(__dirname, 'client');
 
-app.get('/', (req, res) => {
+app.use((req, res, next) => {
   Auth.getPayload(req.cookies.authToken).then(
-    (payload) => res.sendFile(path.join(clientPath, 'main', 'index.html')),
-    (error) => res.redirect('/login')
+    ({user}) => {
+      req.user = user
+      next()
+    },
+    (error) => {
+      next()
+    }
   )
-});
+})
 
 app.get('/register', (req, res) => {
-  res.sendFile(path.join(clientPath,  'register', 'index.html'));
+  if(req.user){
+    res.redirect('/')
+  }else{
+    res.sendFile(path.join(clientPath,  'register', 'index.html'));
+  }
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(clientPath,  'login', 'index.html'));
+  if(req.user){
+    res.redirect('/')
+  }else{
+    res.sendFile(path.join(clientPath,  'login', 'index.html'));
+  }
+});
+
+app.use((req, res, next) => {
+  if(req.user){
+    next()
+  }else{
+    res.redirect('/login')
+  }
+})
+app.use('/', socialAccountRouter);
+app.get('/', (req, res) => {
+  res.sendFile(path.join(clientPath, 'main', 'index.html'))
 });
 
 if(process.env.NODE_ENV !== 'test'){
