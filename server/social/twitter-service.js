@@ -40,6 +40,54 @@ class TwitterService {
       })
     })
   }
+
+  getAccessData(account, verifier) {
+    const auth = account.auth
+
+    return new Promise((resolve, reject) => {
+      this.twitterApi.getAccessToken(auth.requestToken, auth.requestSecret, verifier, (error, accessToken, accessSecret) => {
+        if(error){
+          reject(error)
+        }else{
+          Object.assign(account.auth, {accessToken, accessSecret});
+          resolve(account)
+        }
+      })
+    })
+  }
+
+  verifyCredentials(account) {
+    const auth = account.auth
+
+    return new Promise((resolve, reject) => {
+      this.twitterApi.verifyCredentials(auth.accessToken, auth.accessSecret, (error, userData) => {
+        if(error){
+          reject(error)
+        }else{
+          account.userData = userData
+          resolve(account)
+        }
+      })
+    })
+  }
+
+  saveAccessData({_id, auth, userData}) {
+    return this.collection.findOneAndUpdate(_id, {
+      $set: {
+        pending: false,
+        'auth.accessToken': auth.accessToken,
+        'auth.accessSecret': auth.accessSecret,
+        userData
+      }
+    })
+  }
+
+  completeAccessRequest(userId, {requestToken, verifier}) {
+    return this.collection.findOne({userId: monk.id(userId), 'auth.requestToken': requestToken})
+      .then((account) => this.getAccessData(account, verifier))
+      .then((account) => this.verifyCredentials(account))
+      .then((account) => this.saveAccessData(account))
+  }
 }
 
 export default TwitterService

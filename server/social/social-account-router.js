@@ -10,4 +10,13 @@ router.get('/twitter/access', (req, res, next) => {
   })
 });
 
+router.get('/twitter/callback', (req, res, next) => {
+  const requestToken = req.query.oauth_token,
+    verifier = req.query.oauth_verifier;
+    
+  SocialAccountService.Twitter.completeAccessRequest(req.user._id, {requestToken, verifier}).then(() => {
+    res.redirect('/')
+  })
+});
+
 module.exports = router;

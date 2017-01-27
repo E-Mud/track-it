@@ -216,24 +216,39 @@ describe('TrackIt', () => {
   })
 
   describe('twitter', () => {
-    var accountCollection = null, stub = null;
+    var accountCollection = null;
+
+    const pendingAccount = {
+      userId: userObjectId,
+      pending: true,
+      type: SocialAccountService.TYPE.TWITTER,
+      auth: {
+        requestSecret: 'secret',
+        requestToken: 'token'
+      },
+      userData: null
+    }
 
     beforeEach((done) => {
-      stub = sinon.stub(twitterApi.prototype, 'getRequestToken')
-      stub.callsArgWith(0, null, 'token', 'secret')
-
       accountCollection = DatabaseConnection.connection().get('social_accounts');
 
       accountCollection.remove({}).then(() => done())
     });
 
-    afterEach(() => {
-      if(stub){
-        stub.restore()
-      }
-    })
-
     describe('requiring access', () => {
+      var stub = null;
+
+      beforeEach(() => {
+        stub = sinon.stub(twitterApi.prototype, 'getRequestToken')
+        stub.callsArgWith(0, null, 'token', 'secret')
+      });
+
+      afterEach(() => {
+        if(stub){
+          stub.restore()
+        }
+      })
+
       it('redirects to twitter authorize page', (done) => {
         chai.request(app)
           .get('/twitter/access').set('Cookie', 'authToken=' + authToken)
@@ -244,16 +259,7 @@ describe('TrackIt', () => {
       })
 
       it('creates a pending social account', () => {
-        const expectedAccount = {
-          userId: userObjectId,
-          pending: true,
-          type: SocialAccountService.TYPE.TWITTER,
-          auth: {
-            requestSecret: 'secret',
-            requestToken: 'token'
-          },
-          userData: null
-        }
+        const expectedAccount = pendingAccount
 
         return chai.request(app)
           .get('/twitter/access').set('Cookie', 'authToken=' + authToken)
@@ -270,6 +276,83 @@ describe('TrackIt', () => {
               })
             }
           )
+      })
+    })
+
+    describe('obtaining access', () => {
+      var accessStub = null, verifyStub = null;
+
+      const twitterUserData = {
+        id: 123,
+        username: '@something'
+      }
+
+      const insertPendingAccount = () => {
+        return accountCollection.insert(pendingAccount)
+      }
+
+      const goToCallback = () => {
+        return insertPendingAccount().then(() => {
+          return chai.request(app)
+          .get('/twitter/callback')
+          .set('Cookie', 'authToken=' + authToken)
+          .query({oauth_token: 'token', oauth_verifier: 'verifier'})
+        })
+      }
+
+      beforeEach(() => {
+        accessStub = sinon.stub(twitterApi.prototype, 'getAccessToken')
+        accessStub.callsArgWith(3, null, 'accessToken', 'accessSecret')
+
+        verifyStub = sinon.stub(twitterApi.prototype, 'verifyCredentials')
+        verifyStub.callsArgWith(2, null, twitterUserData)
+      });
+
+      afterEach(() => {
+        if(accessStub){
+          accessStub.restore()
+        }
+
+        if(verifyStub){
+          verifyStub.restore()
+        }
+      })
+
+      it('saves twitter info', () => {
+        const expectedAccount = {
+          userId: userObjectId,
+          pending: false,
+          type: SocialAccountService.TYPE.TWITTER,
+          auth: {
+            requestSecret: 'secret',
+            requestToken: 'token',
+            accessToken: 'accessToken',
+            accessSecret: 'accessSecret'
+          },
+          userData: twitterUserData
+        }
+
+        return goToCallback().then(() => {
+          return accountCollection.find({}).then((foundAccounts) => {
+            expect(foundAccounts).to.have.lengthOf(1);
+
+            const account = foundAccounts[0];
+            expectedAccount._id = account._id;
+
+            expect(account).to.deep.equal(expectedAccount)
+          })
+        })
+      })
+
+      it('interacts with node twitter api', () => {
+        return goToCallback().then(() => {
+          expect(accessStub.args[0][0]).to.equal('token')
+          expect(accessStub.args[0][1]).to.equal('secret')
+          expect(accessStub.args[0][2]).to.equal('verifier')
+
+          expect(verifyStub.args[0][0]).to.equal('accessToken')
+          expect(verifyStub.args[0][1]).to.equal('accessSecret')
+        })
       })
     })
   })

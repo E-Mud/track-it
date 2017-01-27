@@ -23,6 +23,7 @@ describe('SocialAccountService', () => {
     const pendingAccounts = [
       {
         _id: '123456789012345678901235',
+        userId: user._id,
         pending: true,
         type: SocialAccountService.TYPE.TWITTER,
         auth: {
@@ -33,6 +34,7 @@ describe('SocialAccountService', () => {
       },
       {
         _id: '123456789012345678901236',
+        userId: user._id,
         pending: true,
         type: SocialAccountService.TYPE.TWITTER,
         auth: {
