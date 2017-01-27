@@ -1,13 +1,12 @@
 import monk from 'monk';
 import TwitterApi from 'node-twitter-api';
-import DatabaseConnection from '../db/database-connection';
 import SocialAccountBase from './social-account-base';
 
 const TYPE = 'twitter'
 
 class TwitterService {
   constructor(){
-    this.collection = DatabaseConnection.connection().get('social_accounts');
+    this.collection = SocialAccountBase.collection()
     this.twitterApi = new TwitterApi({
       consumerKey: 'your consumer Key',
       consumerSecret: 'your consumer secret',

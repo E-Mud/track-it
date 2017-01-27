@@ -7,6 +7,7 @@ import Auth from './server/users/auth';
 import usersRouter from './server/users/user-router';
 import tracksRouter from './server/tracks/track-router';
 import socialAccountRouter from './server/social/social-account-router';
+import socialAccountApiRouter from './server/social/social-account-api-router';
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
 const port = isDeveloping ? 3000 : process.env.PORT;
@@ -24,6 +25,7 @@ app.use('/api', (req, res, next) => {
   })
 })
 app.use('/api/tracks', tracksRouter);
+app.use('/api/accounts', socialAccountApiRouter);
 
 if (isDeveloping) {
   let webpack = require('webpack');
