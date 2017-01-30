@@ -9,6 +9,10 @@ services:
       - .:/app/
     environment:
       - NODE_ENV=dev
+      - APP_DOMAIN=http://localhost:8080
+      - APP_SECRET=secret
+      - TW_API_KEY=HGcZ3HPkCK6BhH1zIP7dk0BIJ
+      - TW_API_SECRET=6NaJDm1eNw2Qa2aFUPoxgh93AXY8J5js1ovflCxDGCCu1iWBHB
       - DB_HOST=db
       - DB_PORT=27017
       - DB_DATABASE=trackitdb
@@ -21,6 +25,10 @@ services:
       - .:/app/
     environment:
       - NODE_ENV=test
+      - APP_DOMAIN=http://localhost:8080
+      - APP_SECRET=secret
+      - TW_API_KEY=token
+      - TW_API_SECRET=secret
       - DB_HOST=db
       - DB_PORT=27017
       - DB_DATABASE=trackitdb
@@ -31,6 +39,10 @@ services:
     ports:
       - "80:4000"
     environment:
+      - APP_SECRET=08cJj2s88VcX9Zx87Y2zAv1N1Wt2JrbC
+      - APP_DOMAIN=http://localhost
+      - TW_API_KEY=HGcZ3HPkCK6BhH1zIP7dk0BIJ
+      - TW_API_SECRET=6NaJDm1eNw2Qa2aFUPoxgh93AXY8J5js1ovflCxDGCCu1iWBHB
       - DB_HOST=db
       - DB_PORT=27017
       - DB_DATABASE=trackitdb

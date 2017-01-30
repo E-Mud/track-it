@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 
+const secret = process.env.APP_SECRET
+
 export default {
   getPayload: (token) => {
     if(!token) {
@@ -7,7 +9,7 @@ export default {
     }
 
     return new Promise((resolve, reject) => {
-      jwt.verify(token, 'secret', (err, payload) => {
+      jwt.verify(token, secret, (err, payload) => {
         if(err){
           reject(err)
         }else{
@@ -18,6 +20,6 @@ export default {
   },
 
   createToken: (user) => {
-    return jwt.sign({user}, 'secret')
+    return jwt.sign({user}, secret)
   }
 }

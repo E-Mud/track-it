@@ -5,12 +5,12 @@ import SocialAccountBase from './social-account-base';
 const TYPE = 'twitter'
 
 class TwitterService {
-  constructor(){
+  constructor(consumerKey, consumerSecret){
     this.collection = SocialAccountBase.collection()
     this.twitterApi = new TwitterApi({
-      consumerKey: 'your consumer Key',
-      consumerSecret: 'your consumer secret',
-      callback: 'http://localhost:8080/twitter/callback'
+      consumerKey,
+      consumerSecret,
+      callback: process.env.APP_DOMAIN + '/twitter/callback'
     })
   }
 
