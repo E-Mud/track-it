@@ -64,19 +64,23 @@ class TwitterService {
           reject(error)
         }else{
           account.userData = userData
+          account.name = userData.name
+          account.username = userData.screen_name
           resolve(account)
         }
       })
     })
   }
 
-  saveAccessData({_id, auth, userData}) {
+  saveAccessData({_id, auth, userData, name, username}) {
     return this.collection.findOneAndUpdate(_id, {
       $set: {
         pending: false,
         'auth.accessToken': auth.accessToken,
         'auth.accessSecret': auth.accessSecret,
-        userData
+        userData,
+        name,
+        username
       }
     })
   }

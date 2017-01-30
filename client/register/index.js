@@ -30,7 +30,7 @@ class RegisterPage extends React.Component {
 
       AlertDialog.show({
         msg: 'User created succesfully'
-      })
+      }).then(() => window.location.href = '/login')
     }, ({data}) => {
       this.setState({registerDisabled: false})
 

@@ -347,8 +347,9 @@ describe('TrackIt', () => {
       var accessStub = null, verifyStub = null;
 
       const twitterUserData = {
-        id: 123,
-        username: '@something'
+        id: 602106428,
+        name: "Electronic Mud",
+        screen_name: "e_muddy"
       }
 
       const insertPendingAccount = () => {
@@ -387,6 +388,8 @@ describe('TrackIt', () => {
           userId: userObjectId,
           pending: false,
           type: SocialAccountService.TYPE.TWITTER,
+          name: twitterUserData.name,
+          username: twitterUserData.screen_name,
           auth: {
             requestSecret: 'secret',
             requestToken: 'token',

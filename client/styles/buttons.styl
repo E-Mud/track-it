@@ -1,6 +1,6 @@
 @require './spacing.styl'
 
-button
+button, a.button
   height: 3.6rem
   @extend .padded-large-horizontal
   border: none
@@ -29,6 +29,9 @@ button
     &[disabled]
       color: rgba(0,0,0,$disabledTextOpacity)
       background-color: rgba(0,0,0,$disabledTextOpacity/2)
+
+a.button
+  line-height: 3.6rem
 
 .button-group
   button + button

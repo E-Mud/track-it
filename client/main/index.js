@@ -4,6 +4,7 @@ import Track from '../services/track';
 import SocialAccount from '../services/social-account';
 import CreateTrack from '../components/create-track';
 import TrackList from '../components/track-list';
+import SocialAccountsCard from '../components/social-accounts-card';
 import './index.styl';
 
 class MainPage extends React.Component {
@@ -23,9 +24,14 @@ class MainPage extends React.Component {
 
     return (
       <div className={'flex-container full-height background center-start'}>
-        <div className={'flex-40'}>
-          <CreateTrack onTrackCreated={onTrackCreated} />
-          <TrackList className={'margin-large-top'} trackList={this.props.trackList} />
+        <div className={'flex-70 flex-container'}>
+          <div className={'flex-50 padded-base'}>
+            <SocialAccountsCard socialAccounts={this.props.socialAccounts} />
+          </div>
+          <div className={'flex-50 padded-base'}>
+            <CreateTrack onTrackCreated={onTrackCreated} />
+            <TrackList className={'margin-large-top'} trackList={this.props.trackList} />
+          </div>
         </div>
       </div>
     );
