@@ -186,16 +186,25 @@ describe('TrackIt', () => {
 
   describe('/accounts', () => {
     describe('reading', () => {
+      const toExpectedAccounts = (accounts) => {
+        return accounts.map((account) => {
+          let newAccount = Object.assign({}, account, {_id: account._id.toString(), userId: account.userId.toString()})
+          delete newAccount.auth;
+
+          return newAccount
+        })
+      }
+
       const myCompleteAccounts = [
-        {_id: monk.id('123456789012345678901230'), userId: userObjectId, pending: false},
-        {_id: monk.id('123456789012345678901231'), userId: userObjectId, pending: false}
+        {_id: monk.id('123456789012345678901230'), auth: {secret:'secret'}, userId: userObjectId, pending: false},
+        {_id: monk.id('123456789012345678901231'), auth: {secret:'secret'}, userId: userObjectId, pending: false}
       ], myPendingAccounts = [
-        {_id: monk.id('123456789012345678901232'), userId: userObjectId, pending: true},
-        {_id: monk.id('123456789012345678901233'), userId: userObjectId, pending: true}
+        {_id: monk.id('123456789012345678901232'), auth: {secret:'secret'}, userId: userObjectId, pending: true},
+        {_id: monk.id('123456789012345678901233'), auth: {secret:'secret'}, userId: userObjectId, pending: true}
       ], otherUserAccounts = [
-        {_id: monk.id('123456789012345678901234'), userId: otherUserObjectId, pending: false},
-        {_id: monk.id('123456789012345678901235'), userId: otherUserObjectId, pending: true}
-      ];
+        {_id: monk.id('123456789012345678901234'), auth: {secret:'secret'}, userId: otherUserObjectId, pending: false},
+        {_id: monk.id('123456789012345678901235'), auth: {secret:'secret'}, userId: otherUserObjectId, pending: true}
+      ], expectedAccounts = toExpectedAccounts(myCompleteAccounts);
 
       var accountCollection = null
 
@@ -211,12 +220,6 @@ describe('TrackIt', () => {
         })
       }
 
-      const parseObjectId = (accounts) => {
-        return accounts.map((account) => {
-          return Object.assign({}, account, {_id: account._id.toString(), userId: account.userId.toString()})
-        })
-      }
-
       beforeEach((done) => {
         accountCollection = DatabaseConnection.connection().get('social_accounts');
 
@@ -225,19 +228,19 @@ describe('TrackIt', () => {
 
       it('returns all accounts', () => {
         return getAccounts(myCompleteAccounts).then(({body}) => {
-          expect(body).to.deep.equal(parseObjectId(myCompleteAccounts))
+          expect(body).to.deep.equal(expectedAccounts)
         })
       })
 
       it('doesn\'t return pending accounts', () => {
         return getAccounts(myCompleteAccounts.concat(myPendingAccounts)).then(({body}) => {
-          expect(body).to.deep.equal(parseObjectId(myCompleteAccounts))
+          expect(body).to.deep.equal(expectedAccounts)
         })
       })
 
       it('doesn\'t return other user\'s accounts', () => {
         return getAccounts(myCompleteAccounts.concat(otherUserAccounts)).then(({body}) => {
-          expect(body).to.deep.equal(parseObjectId(myCompleteAccounts))
+          expect(body).to.deep.equal(expectedAccounts)
         })
       })
     })
