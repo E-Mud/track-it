@@ -73,14 +73,20 @@ class TwitterService {
   }
 
   saveAccessData({_id, auth, userData, name, username}) {
-    return this.collection.findOneAndUpdate(_id, {
-      $set: {
-        pending: false,
-        'auth.accessToken': auth.accessToken,
-        'auth.accessSecret': auth.accessSecret,
-        userData,
-        name,
-        username
+    return this.collection.findOne({'userData.id': userData.id}).then((foundAccount) => {
+      if(foundAccount){
+        return this.collection.findOneAndDelete(_id).then(() => foundAccount)
+      }else{
+        return this.collection.findOneAndUpdate(_id, {
+          $set: {
+            pending: false,
+            'auth.accessToken': auth.accessToken,
+            'auth.accessSecret': auth.accessSecret,
+            userData,
+            name,
+            username
+          }
+        })
       }
     })
   }

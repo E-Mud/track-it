@@ -411,6 +411,36 @@ describe('TrackIt', () => {
         })
       })
 
+      it('doesn\'t duplicate/replace twitter account', () => {
+        const accountToInsert = {
+          userId: userObjectId,
+          pending: false,
+          type: SocialAccountService.TYPE.TWITTER,
+          name: twitterUserData.name,
+          username: twitterUserData.screen_name,
+          auth: {
+            requestSecret: 'requestSecret2',
+            requestToken: 'requestToken2',
+            accessToken: 'accessToken',
+            accessSecret: 'accessSecret'
+          },
+          userData: twitterUserData
+        }
+
+        return accountCollection.insert(accountToInsert).then((insertedAccount) => {
+          const expectedAccount = insertedAccount
+
+          return goToCallback().then(() => {
+            return accountCollection.find({}).then((foundAccounts) => {
+              expect(foundAccounts).to.have.lengthOf(1);
+
+              const account = foundAccounts[0];
+              expect(account).to.deep.equal(expectedAccount)
+            })
+          })
+        })
+      })
+
       it('interacts with node twitter api', () => {
         return goToCallback().then(() => {
           expect(accessStub.args[0][0]).to.equal('token')
