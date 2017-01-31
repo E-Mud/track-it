@@ -5,17 +5,32 @@ import SocialAccountBase from './social-account-base';
 const TYPE = 'twitter'
 
 class TwitterService {
-  constructor(consumerKey, consumerSecret){
+  constructor(account){
     this.collection = SocialAccountBase.collection()
     this.twitterApi = new TwitterApi({
-      consumerKey,
-      consumerSecret,
+      consumerKey: process.env.TW_API_KEY,
+      consumerSecret: process.env.TW_API_SECRET,
       callback: process.env.APP_DOMAIN + '/twitter/callback'
     })
+
+    if(account){
+      const auth = account.auth
+
+      this.accessToken = auth.accessToken
+      this.accessSecret = auth.accessSecret
+    }
   }
 
   static type() {
     return TYPE
+  }
+
+  type() {
+    return TYPE
+  }
+
+  static testTrackUrl(trackUrl) {
+    return /https:\/\/twitter\.com\/[^\/]+\/status\/.+/.test(trackUrl)
   }
 
   getPendingAccount(requestSecret) {
@@ -96,6 +111,30 @@ class TwitterService {
       .then((account) => this.getAccessData(account, verifier))
       .then((account) => this.verifyCredentials(account))
       .then((account) => this.saveAccessData(account))
+  }
+
+  getTweetIdFromUrl(trackUrl) {
+    const match = trackUrl.match(/https:\/\/twitter\.com\/[^\/]+\/status\/(.+)/)
+
+    return match[1]
+  }
+
+  getAccountForContentItem(userId, contentItem) {
+    return this.collection.findOne({userId: monk.id(userId), 'userData.id': contentItem.user.id})
+  }
+
+  getContentItem(trackUrl) {
+    return new Promise((resolve, reject) => {
+      const tweetId = this.getTweetIdFromUrl(trackUrl)
+
+      this.twitterApi.statuses('show', {id: tweetId}, null, null, (error, data) => {
+        if(error){
+          reject(new Error('not_found_content'))
+        }else{
+          resolve(data)
+        }
+      })
+    })
   }
 }
 

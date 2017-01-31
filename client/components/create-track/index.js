@@ -58,7 +58,7 @@ class CreateTrack extends React.Component {
 
     return (
       <Card className={'padded-base'}>
-        <FormFields.Input model={this.state.newTrack} name={'url'} onChange={onUrlChange} placeholder={'Twit URL'}/>
+        <FormFields.Input model={this.state.newTrack} name={'url'} onChange={onUrlChange} placeholder={'Tweet URL'}/>
         <div className={'margin-base-top flex-container end-center'}>
           <button className={'primary'} onClick={addNewTrack} disabled={this.state.addButtonDisabled}>CREATE</button>
         </div>

@@ -1,9 +1,35 @@
 import TwitterService from './twitter-service';
 
-export default {
-  TYPE: {
-    TWITTER: TwitterService.type()
+const TYPE = {
+  TWITTER: TwitterService.type()
+}
+
+const services = {
+  [TYPE.TWITTER]: TwitterService
+}
+
+export default Object.assign({}, services, {
+  TYPE,
+
+  forType: (type) => {
+    const service = services[type]
+
+    return new service()
   },
 
-  Twitter: new TwitterService(process.env.TW_API_KEY, process.env.TW_API_SECRET)
-}
+  forSocialAccount: (account) => {
+    const service = services[account.type]
+
+    return new service(account)
+  },
+
+  forTrackUrl: (trackUrl) => {
+    if(services[TYPE.TWITTER].testTrackUrl(trackUrl)){
+      const service = services[TYPE.TWITTER]
+
+      return new service()
+    }else{
+      return null
+    }
+  }
+})

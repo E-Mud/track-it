@@ -8,12 +8,14 @@ var expect = chai.expect;
 chai.use(chaiAsPromised);
 import bcrypt from 'bcrypt';
 
-describe('SocialAccountService', () => {
+describe('TwitterService', () => {
   const user = {_id: monk.id('f23456789012345678901234'), username: 'username'};
 
-  var collection = null;
+  var collection = null, TwitterService = null;
 
   beforeEach((done) => {
+    TwitterService = SocialAccountService.forType(SocialAccountService.TYPE.TWITTER)
+
     collection = DatabaseConnection.connection().get('social_accounts');
 
     collection.remove({}).then(() => done())
@@ -51,7 +53,7 @@ describe('SocialAccountService', () => {
 
     it('returns pending account by request secret', () => {
       return insertAccounts(pendingAccounts).then(() => {
-        return SocialAccountService.Twitter.getPendingAccount('1231').then((res) => {
+        return TwitterService.getPendingAccount('1231').then((res) => {
           res.should.deep.equal(pendingAccounts[0])
         })
       })
@@ -59,7 +61,7 @@ describe('SocialAccountService', () => {
 
     it('doesn\'t return other pending social accounts', () => {
       return insertAccounts(pendingAccounts[1]).then(() => {
-        return SocialAccountService.Twitter.getPendingAccount('1231').then((res) => {
+        return TwitterService.getPendingAccount('1231').then((res) => {
           expect(res).to.be.null
         })
       })

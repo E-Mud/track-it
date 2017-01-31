@@ -4,17 +4,31 @@ import SocialAccountService from '../social/social-account-service.js';
 
 const collection = DatabaseConnection.connection().get('tracks');
 
-const typeForUrl = (url) => {
-  return SocialAccountService.TYPE.TWITTER
-}
-
 export default {
   createTrack: (track) => {
-    const trackToCreate = Object.assign({type: typeForUrl(track.url)}, track)
+    const socialService = SocialAccountService.forTrackUrl(track.url);
 
-    trackToCreate.userId = monk.id(trackToCreate.userId)
+    if(!socialService){
+      return Promise.reject(new Error('invalid_url'))
+    }else{
+      const trackToCreate = Object.assign({type: socialService.type()}, track)
 
-    return collection.insert(trackToCreate)
+      trackToCreate.userId = monk.id(trackToCreate.userId)
+
+      return socialService.getContentItem(track.url).then((contentItem) => {
+        trackToCreate.contentItem = contentItem;
+
+        return socialService.getAccountForContentItem(trackToCreate.userId, contentItem).then((socialAccount) => {
+          if(socialAccount){
+            trackToCreate.socialAccountId = monk.id(socialAccount._id);
+            
+            return collection.insert(trackToCreate)
+          }else{
+            throw new Error('not_found_account')
+          }
+        })
+      })
+    }
   },
 
   getTracksByUserId: (userId) => {

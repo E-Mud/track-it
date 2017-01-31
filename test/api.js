@@ -3,6 +3,7 @@ import UserService from '../server/users/user-service';
 import SocialAccountService from '../server/social/social-account-service';
 import monk from 'monk';
 import twitterApi from 'node-twitter-api';
+import twitterStub from './stubs/twitter';
 import sinon from 'sinon';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -132,20 +133,38 @@ describe('TrackIt', () => {
   })
 
   describe('/tracks', () => {
-    var trackCollection = null;
+    var trackCollection = null, accountCollection = null;
 
     beforeEach((done) => {
       trackCollection = DatabaseConnection.connection().get('tracks');
+      accountCollection = DatabaseConnection.connection().get('social_accounts');
 
-      trackCollection.remove({}).then(() => done())
+      Promise.all([
+        trackCollection.remove({}),
+        accountCollection.remove({})
+      ]).then(() => done())
     });
 
     describe('creation', () => {
+      var tweetStub = null;
+
+      beforeEach((done) => {
+        tweetStub = sinon.stub(twitterApi.prototype, 'statuses', twitterStub.getTweet)
+
+        accountCollection.insert(twitterStub.relatedSocialAccount).then(() => done())
+      });
+
+      afterEach(() => {
+        if(tweetStub){
+          tweetStub.restore()
+        }
+      })
+
       it('creates track with current user\'s id', () => {
         return chai.request(app)
           .post('/api/tracks')
           .set('Authorization', bearerToken)
-          .send({url: 'https://twitter.com/e_muddy/status/30091501105068441'})
+          .send({url: 'https://twitter.com/e_muddy/status/1230'})
           .then((res) => {
             res.body.userId.should.equal(userId)
             return trackCollection.findOne({'_id': res.body._id}).then((createdTrack) => {
