@@ -1,111 +1,92 @@
 import DatabaseConnection from '../../server/db/database-connection';
 import UserService from '../../server/users/user-service';
+import fix from '../utils/fix';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-var should = chai.should();
+var expect = chai.expect;
 chai.use(chaiAsPromised);
 import bcrypt from 'bcrypt';
 
 describe('UserService', () => {
+  const user = {
+    username: fix.newUser.user.username,
+    password: fix.newUser.auth.password
+  }
+
   describe('on user registration', () => {
     var collection = null;
 
     beforeEach((done) => {
       collection = DatabaseConnection.connection().get('users');
-
-      collection.remove({}).then(() => done())
+      fix.clean().then(() => done())
     });
 
     it('creates a new user', () => {
-      return UserService.registerUser({
-        username: 'alberto@test.com',
-        password: 'myPass'
-      }).then((createdUser) => {
+      return UserService.registerUser(user).then((returnedUser) => {
+        expect(returnedUser.username).to.equal(user.username)
+
         return collection.find({}).then((result) => {
-          result.length.should.equal(1);
+          expect(result).to.have.lengthOf(1);
 
-          let user = result[0];
+          let createdUser = result[0];
 
-          user.username.should.equal('alberto@test.com')
-          createdUser.username.should.equal('alberto@test.com')
-          createdUser._id.should.exist
-          bcrypt.compareSync('myPass', user.password).should.equal(true);
+          expect(createdUser.username).to.equal(user.username)
+          expect(returnedUser._id.toString()).to.equal(createdUser._id.toString())
+          expect(bcrypt.compareSync(user.password, createdUser.password)).to.equal(true);
         })
       })
     })
 
     it('throws invalid_user if no username', () => {
-      return UserService.registerUser({
+      return expect(UserService.registerUser({
         password: 'myPass'
-      }).should.be.rejectedWith('invalid_user');
+      })).to.be.rejectedWith('invalid_user');
     })
 
     it('throws invalid_user if no password', () => {
-      return UserService.registerUser({
+      return expect(UserService.registerUser({
         username: 'alberto@test.com'
-      }).should.be.rejectedWith('invalid_user');
+      })).to.be.rejectedWith('invalid_user');
     })
 
     it('throws used_username if username is already used', () => {
-      return collection.insert({username: 'alberto@test.com'}).then(() => {
-        return UserService.registerUser({
-          username: 'alberto@test.com',
-          password: 'myPass'
-        }).should.be.rejectedWith('used_username');
+      return fix.insertFixtures(fix.newUser).then(() => {
+        return expect(UserService.registerUser(user)).to.be.rejectedWith('used_username');
       })
     })
   })
 
   describe('on login', () => {
-    const user = {
-      username: 'alberto@test.com',
-      password: 'myPass'
-    }, encryptedPassword = '$2a$10$C4WzVIUmt3K362LYkmubTu2YDUOsxn4dhaa0Yo.zdaPXiA56JqgYm'
-
-    var collection = null;
-
-    const insertUser = () => {
-      return collection.insert({username: user.username, password: encryptedPassword})
-    }
-
     beforeEach((done) => {
-      collection = DatabaseConnection.connection().get('users');
-
-      collection.remove({}).then(() => done())
+      fix.clean()
+        .then(() => fix.insertFixtures(fix.newUser))
+        .then(() => done())
     });
 
     it('returns the user', () => {
-      return insertUser().then((insertedUser) => {
-        return UserService.login(user).then((res) => {
-          res.user.should.deep.equal(insertedUser);
-        })
+      return UserService.login(user).then((res) => {
+        expect(res.user).to.deep.equal(fix.newUser.user);
       })
     })
 
     it('returns the authToken', () => {
-      return insertUser().then(() => {
-        return UserService.login(user).then((res) => {
-          res.authToken.should.exist;
-        })
+      return UserService.login(user).then((res) => {
+        expect(res.authToken).to.exist;
       })
     })
 
     it('throws invalid_password if password is invalid', () => {
-      return insertUser().then(() => {
-        return UserService.login({
-          username: user.username,
-          password: 'ñeeeee'
-        }).should.be.rejectedWith('invalid_password');
-      })
+      return expect(UserService.login({
+        username: user.username,
+        password: 'ñeeeee'
+      })).to.be.rejectedWith('invalid_password');
     })
 
     it('throws user_not_found if user doesn\'t exist', () => {
-      return insertUser().then(() => {
-        return UserService.login({
-          username: user.username + 'hey',
-          password: 'myPass'
-        }).should.be.rejectedWith('user_not_found');
-      })
+      return expect(UserService.login({
+        username: user.username + 'hey',
+        password: 'myPass'
+      })).to.be.rejectedWith('user_not_found');
     })
   })
 })
