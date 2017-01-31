@@ -34,11 +34,12 @@ const userWithAccount = {
     password: 'mypass002',
     authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjAwMDAwMDAwMDAwMDAwMDAwMDAwMTAwMiIsInVzZXJuYW1lIjoidXNlcl93aXRoX2FjY291bnRAZml4LmNvbSJ9LCJpYXQiOjE0ODU4NjQ2NzN9.-0rrtU23Z0deuafQvqJcO63qE9j8XClPr9YS1ZOEHfQ'
   },
+  twitterAccount: twitterFixture.accounts[123],
   account: {
     _id: accountId('002'), userId: userId('002'), type: 'twitter', pending: false,
-    name: twitterFixture.account123.name, username: twitterFixture.account123.screen_name,
-    auth: twitterFixture.auth123,
-    userData: {id: twitterFixture.account123.id}
+    name: twitterFixture.accounts[123].userData.name, username: twitterFixture.accounts[123].userData.screen_name,
+    auth: twitterFixture.accounts[123].auth,
+    userData: twitterFixture.accounts[123].userData
   }
 }
 
@@ -48,23 +49,57 @@ const userWithTrackedAccount = {
     password: 'mypass003',
     authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjAwMDAwMDAwMDAwMDAwMDAwMDAwMTAwMyIsInVzZXJuYW1lIjoidXNlcl93aXRoX3RyYWNrZWRfYWNjb3VudEBmaXguY29tIn0sImlhdCI6MTQ4NTg2NDY3M30.o0WIcDhkJnHf9uPdw8CBBm9v1R4IUf_e2necXWDa2qc'
   },
+  twitterAccount: twitterFixture.accounts[124],
   account: {
     _id: accountId('003'), userId: userId('003'), type: 'twitter', pending: false,
-    name: twitterFixture.account124.name, username: twitterFixture.account124.screen_name,
-    auth: twitterFixture.auth124,
-    userData: {id: twitterFixture.account124.id}
+    name: twitterFixture.accounts[124].userData.name, username: twitterFixture.accounts[124].userData.screen_name,
+    auth: twitterFixture.accounts[124].auth,
+    userData: twitterFixture.accounts[124].userData
   },
   tracks: [
     {
       _id: trackId('030'), userId: userId('003'), socialAccountId: accountId('003'),
       url: 'https://twitter.com/e_muddy/status/1240',
       contentItem: twitterFixture.tweets[1240].data
+    },
+    {
+      _id: trackId('031'), userId: userId('003'), socialAccountId: accountId('003'),
+      url: 'https://twitter.com/e_muddy/status/1241',
+      contentItem: twitterFixture.tweets[1241].data
+    }
+  ]
+}
+
+const userWithTrackedAccount2 = {
+  user: {_id: userId('004'), username: 'user_with_tracked_account@fix.com', password: '$2a$10$NSt9ot6o5ogXO0OTNH7.neA4FgXGTgYP4nmWXBm8GPVBiKoBQMYya'},
+  auth: {
+    password: 'mypass004',
+    authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjAwMDAwMDAwMDAwMDAwMDAwMDAwMTAwMyIsInVzZXJuYW1lIjoidXNlcl93aXRoX3RyYWNrZWRfYWNjb3VudEBmaXguY29tIn0sImlhdCI6MTQ4NTg2NDY3M30.o0WIcDhkJnHf9uPdw8CBBm9v1R4IUf_e2necXWDa2qc'
+  },
+  account: {
+    _id: accountId('004'), userId: userId('004'), type: 'twitter', pending: false,
+    name: twitterFixture.accounts[124].userData.name, username: twitterFixture.accounts[124].userData.screen_name,
+    auth: twitterFixture.accounts[124].auth,
+    userData: twitterFixture.accounts[124].userData
+  },
+  tracks: [
+    {
+      _id: trackId('040'), userId: userId('004'), socialAccountId: accountId('004'),
+      url: 'https://twitter.com/e_muddy/status/1250',
+      contentItem: twitterFixture.tweets[1250].data
+    },
+    {
+      _id: trackId('041'), userId: userId('004'), socialAccountId: accountId('004'),
+      url: 'https://twitter.com/e_muddy/status/1251',
+      contentItem: twitterFixture.tweets[1251].data
     }
   ]
 }
 
 export default {
+  twitter: twitterFixture,
   newUser,
   userWithAccount,
-  userWithTrackedAccount
+  userWithTrackedAccount,
+  userWithTrackedAccount2
 }

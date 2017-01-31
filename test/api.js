@@ -3,7 +3,7 @@ import UserService from '../server/users/user-service';
 import SocialAccountService from '../server/social/social-account-service';
 import monk from 'monk';
 import twitterApi from 'node-twitter-api';
-import twitterStub from './stubs/twitter';
+import twitterStub from './utils/stubs/twitter';
 import sinon from 'sinon';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';

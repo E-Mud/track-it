@@ -1,22 +1,7 @@
 import monk from'monk';
+import fix from '../fix/twitter';
 
-const tweets = {
-  404: {
-    error: {
-      statusCode: 404,
-      data: '{"errors":[{"code":144,"message":"No status found with that ID."}]}'
-    },
-    data: {"errors":[{"code":144,"message":"No status found with that ID."}]}
-  },
-  1230: {
-    error: null,
-    data: {id: 1230, user: {id: 123}}
-  },
-  1240: {
-    error: null,
-    data: {id: 1240, user: {id: 124}}
-  }
-}
+const tweets = fix.tweets
 
 const relatedSocialAccount = {
   _id: monk.id('098765432109876543210987'),
@@ -37,6 +22,8 @@ const validateTweetRequest = (type, params) => {
 
 export default {
   relatedSocialAccount,
+
+  tweetUrl: fix.tweetUrl,
 
   getTweet: (type, params, token, secret, callback) => {
     validateTweetRequest(type, params)
