@@ -30,5 +30,29 @@ export default {
 
     const tweet = tweets[params.id]
     callback(tweet.error, tweet.data)
+  },
+
+  getRequestToken: (callback) => {
+    callback(null, 'token', 'secret')
+  },
+
+  getAccessToken: (expected, {accessToken, accessSecret}) => {
+    return (token, secret, verifier, callback) => {
+      if(token !== expected.token || secret !== expected.secret || verifier !== expected.verifier){
+        throw new Error('incorrect params')
+      }
+
+      callback(null, accessToken, accessSecret)
+    }
+  },
+
+  verifyCredentials: (expected, twitterUserData) => {
+    return (token, secret, callback) => {
+      if(token !== expected.token || secret !== expected.secret){
+        throw new Error('incorrect params')
+      }
+
+      callback(null, twitterUserData)
+    }
   }
 }

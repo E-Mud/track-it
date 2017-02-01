@@ -32,84 +32,80 @@ sinon.config = {
   useFakeServer: false
 }
 
-describe('TrackIt', () => {
-  var userCollection = null;
-
-  const insertUser = (user) => {
-    return userCollection.insert(user)
+describe('TrackIt API', () => {
+  const post = (url, body, user = fix.newUser) => {
+    return chai.request(app)
+      .post('/api' + url)
+      .set('Content-Type', 'application/json')
+      .set('Authorization', fix.bearerToken(user))
+      .send(body)
   }
 
-  const doLoginRequest = (user, body) => {
-    return insertUser(user).then(() => {
-      return chai.request(app)
-      .post('/api/users/login')
+  const get = (url, query = {}, user = fix.newUser) => {
+    return chai.request(app)
+      .get('/api' + url)
       .set('Content-Type', 'application/json')
-      .send(body)
-    })
+      .set('Authorization', fix.bearerToken(user))
+      .query(query)
   }
 
   beforeEach((done) => {
-    userCollection = DatabaseConnection.connection().get('users');
-
-    userCollection.remove({}).then(() => done())
-  });
+    fix.clean().then(() => done())
+  })
 
   describe('/users', () => {
     describe('/register', () => {
-      const doRegisterRequest = (body) => {
-        return chai.request(app)
-          .post('/api/users/register')
-          .set('Content-Type', 'application/json')
-          .send(body)
-      }
+      const register = (body) => {return post('/users/register', body)},
+        username = fix.newUser.user.username, password = fix.newUser.auth.password;
 
       it('returns the created user', () => {
-        return doRegisterRequest({ password: '123', username: 'alberto@test.com' })
+        return register({password, username})
           .then(function (res) {
-            res.should.have.status(200);
-            res.body._id.should.exist;
-            res.body.username.should.equal('alberto@test.com')
+            expect(res).to.have.status(200);
+            expect(res.body._id).to.exist;
+            expect(res.body.username).to.equal(username)
             expect(res.body.password).to.not.exist
           })
       })
 
       it('returns an error for invalid user', () => {
-        return doRegisterRequest({username: 'alberto@test.com' })
+        return register({username})
           .catch(function (res) {
-            res.should.have.status(400);
-            res.response.body.should.deep.equal({msg: 'invalid_user'})
+            expect(res).to.have.status(400);
+            expect(res.response.body).to.deep.equal({msg: 'invalid_user'})
           })
       })
 
       it('returns an error for used user', () => {
-        return doRegisterRequest({ password: '123', username: 'alberto@test.com' })
-          .then(() => {
-            return doRegisterRequest({password: '123', username: 'alberto@test.com' })
-              .catch(function (res) {
-                res.should.have.status(400);
-                res.response.body.should.deep.equal({msg: 'used_username'})
-              })
-          })
+        return fix.insertFixtures(fix.newUser).then(() => {
+          return register({password, username})
+            .catch(function (res) {
+              expect(res).to.have.status(400);
+              expect(res.response.body).to.deep.equal({msg: 'used_username'})
+            })
+        })
       })
     })
 
     describe('/login', () => {
-      const user = {
-        username: 'alberto@test.com',
-        password: '$2a$10$C4WzVIUmt3K362LYkmubTu2YDUOsxn4dhaa0Yo.zdaPXiA56JqgYm'
-      }
+      const login = (body) => {return post('/users/login', body)},
+        username = fix.newUser.user.username, password = fix.newUser.auth.password;
+
+      beforeEach((done) => {
+        fix.insertFixtures(fix.newUser).then(() => done())
+      })
 
       it('returns the created user', () => {
-        return doLoginRequest(user, {username: user.username, password: 'myPass' })
-          .then(function (res) {
-            res.should.have.status(200);
-            res.body.user.should.exist;
-            res.body.authToken.should.exist;
+        return login({username, password})
+          .then((res) => {
+            expect(res).to.have.status(200);
+            expect(res.body.user).to.exist;
+            expect(res.body.authToken).to.exist;
           })
       })
 
       it('sets authToken cookie', () => {
-        return doLoginRequest(user, {username: user.username, password: 'myPass' })
+        return login({username, password})
           .then((res) => {
             expect(res).to.have.cookie('authToken');
             expect(res).to.have.cookie('authToken', res.body.authToken);
@@ -117,43 +113,32 @@ describe('TrackIt', () => {
       })
 
       it('returns an error for invalid user', () => {
-        return doLoginRequest(user, {username: '2' + user.username, password: 'myPass' })
+        return login({username: '2' + username, password})
           .catch((res) => {
-            res.should.have.status(400);
-            res.response.body.should.deep.equal({msg: 'user_not_found'})
+            expect(res).to.have.status(400);
+            expect(res.response.body).to.deep.equal({msg: 'user_not_found'})
           })
       })
 
       it('returns an error for invalid password', () => {
-        return doLoginRequest(user, {username: user.username, password: 'myPass2' })
+        return login({username, password: '2' + password})
           .catch((res) => {
-            res.should.have.status(400);
-            res.response.body.should.deep.equal({msg: 'invalid_password'})
+            expect(res).to.have.status(400);
+            expect(res.response.body).to.deep.equal({msg: 'invalid_password'})
           })
       })
     })
   })
 
   describe('/tracks', () => {
-    var trackCollection = null, accountCollection = null;
-
-    beforeEach((done) => {
-      trackCollection = DatabaseConnection.connection().get('tracks');
-      accountCollection = DatabaseConnection.connection().get('social_accounts');
-
-      Promise.all([
-        trackCollection.remove({}),
-        accountCollection.remove({})
-      ]).then(() => done())
-    });
-
     describe('creation', () => {
-      var tweetStub = null;
+      var tweetStub = null, trackCollection = null;
 
       beforeEach((done) => {
         tweetStub = sinon.stub(twitterApi.prototype, 'statuses', twitterStub.getTweet)
+        trackCollection = DatabaseConnection.connection().get('tracks')
 
-        accountCollection.insert(twitterStub.relatedSocialAccount).then(() => done())
+        fix.insertFixtures(fix.userWithAccount).then(() => done())
       });
 
       afterEach(() => {
@@ -163,43 +148,26 @@ describe('TrackIt', () => {
       })
 
       it('creates track with current user\'s id', () => {
-        return chai.request(app)
-          .post('/api/tracks')
-          .set('Authorization', bearerToken)
-          .send({url: 'https://twitter.com/e_muddy/status/1230'})
+        return post('/tracks', {url: fix.twitter.tweets[1230].url}, fix.userWithAccount)
           .then((res) => {
-            res.body.userId.should.equal(userId)
-            return trackCollection.findOne({'_id': res.body._id}).then((createdTrack) => {
-              createdTrack.userId.toString().should.equal(userId)
+            expect(res.body.userId).to.equal(fix.userWithAccount.user._id.toString())
+            return trackCollection.findOne(res.body._id).then((createdTrack) => {
+              expect(createdTrack.userId.toString()).to.equal(fix.userWithAccount.user._id.toString())
             })
           })
       })
     })
 
     describe('reading', () => {
-      const insertedTracks = [
-        {_id: '123456789012345678901230', userId: userObjectId, url: 'http://...'},
-        {_id: '123456789012345678901231', userId: userObjectId, url: 'http://...'},
-        {_id: '123456789012345678901232', userId: monk.id(otherUserId), url: 'http://...'},
-        {_id: '123456789012345678901233', userId: monk.id(otherUserId), url: 'http://...'}
-      ]
-
-      const readTracks = () => {
-        return trackCollection.insert(insertedTracks).then(() => {
-          return chai.request(app)
-            .get('/api/tracks')
-            .set('Authorization', bearerToken)
-        })
-      }
+      beforeEach((done) => {
+        fix.insertFixtures([fix.userWithTrackedAccount, fix.userWithTrackedAccount2]).then(() => done())
+      })
 
       it('reads user\'s tracks', () => {
-        const expectedTracks = [
-          {_id: '123456789012345678901230', userId: userId, url: 'http://...'},
-          {_id: '123456789012345678901231', userId: userId, url: 'http://...'}
-        ]
+        const expectedTracks = fix.parseObjectIds(fix.userWithTrackedAccount.tracks)
 
-        return readTracks().then((res) => {
-          res.body.should.deep.equal(expectedTracks)
+        return get('/tracks', undefined, fix.userWithTrackedAccount).then((res) => {
+          expect(res.body).to.deep.equal(expectedTracks)
         })
       })
     })
@@ -207,125 +175,102 @@ describe('TrackIt', () => {
 
   describe('/accounts', () => {
     describe('reading', () => {
-      const toExpectedAccounts = (accounts) => {
-        return accounts.map((account) => {
-          let newAccount = Object.assign({}, account, {_id: account._id.toString(), userId: account.userId.toString()})
-          delete newAccount.auth;
+      const toExpectedAccounts = (account) => {
+        const parsedAccount = fix.parseObjectIds(account)
 
-          return newAccount
-        })
+        delete parsedAccount.auth
+
+        return [parsedAccount]
       }
 
-      const myCompleteAccounts = [
-        {_id: monk.id('123456789012345678901230'), auth: {secret:'secret'}, userId: userObjectId, pending: false},
-        {_id: monk.id('123456789012345678901231'), auth: {secret:'secret'}, userId: userObjectId, pending: false}
-      ], myPendingAccounts = [
-        {_id: monk.id('123456789012345678901232'), auth: {secret:'secret'}, userId: userObjectId, pending: true},
-        {_id: monk.id('123456789012345678901233'), auth: {secret:'secret'}, userId: userObjectId, pending: true}
-      ], otherUserAccounts = [
-        {_id: monk.id('123456789012345678901234'), auth: {secret:'secret'}, userId: otherUserObjectId, pending: false},
-        {_id: monk.id('123456789012345678901235'), auth: {secret:'secret'}, userId: otherUserObjectId, pending: true}
-      ], expectedAccounts = toExpectedAccounts(myCompleteAccounts);
-
-      var accountCollection = null
-
-      const insertAccounts = (accounts) => {
-        return accountCollection.insert(accounts)
+      const getAccounts = (user = fix.userWithPendingAccount) => {
+        return get('/accounts', undefined, user)
       }
-
-      const getAccounts = (accounts) => {
-        return accountCollection.insert(accounts).then(() => {
-          return chai.request(app)
-          .get('/api/accounts')
-          .set('Authorization', bearerToken)
-        })
-      }
-
-      beforeEach((done) => {
-        accountCollection = DatabaseConnection.connection().get('social_accounts');
-
-        accountCollection.remove({}).then(() => done())
-      })
 
       it('returns all accounts', () => {
-        return getAccounts(myCompleteAccounts).then(({body}) => {
-          expect(body).to.deep.equal(expectedAccounts)
+        return fix.insertFixtures(fix.userWithAccount).then(() => {
+          return getAccounts(fix.userWithAccount).then(({body}) => {
+            expect(body).to.deep.equal(toExpectedAccounts(fix.userWithAccount.account))
+          })
         })
       })
 
       it('doesn\'t return pending accounts', () => {
-        return getAccounts(myCompleteAccounts.concat(myPendingAccounts)).then(({body}) => {
-          expect(body).to.deep.equal(expectedAccounts)
+        return fix.insertFixtures(fix.userWithPendingAccount).then(() => {
+          return getAccounts(fix.userWithPendingAccount).then(({body}) => {
+            expect(body).to.deep.equal(toExpectedAccounts(fix.userWithPendingAccount.account))
+          })
         })
       })
 
       it('doesn\'t return other user\'s accounts', () => {
-        return getAccounts(myCompleteAccounts.concat(otherUserAccounts)).then(({body}) => {
-          expect(body).to.deep.equal(expectedAccounts)
+        return fix.insertFixtures([fix.userWithAccount, fix.userWithTrackedAccount]).then(() => {
+          return getAccounts(fix.userWithAccount).then(({body}) => {
+            expect(body).to.deep.equal(toExpectedAccounts(fix.userWithAccount.account))
+          })
         })
       })
     })
   })
+})
+
+describe('TrackIt App', () => {
+  const goToPage = (url, user = fix.newUser) => {
+    return chai.request(app)
+      .get(url)
+      .set('Cookie', fix.authCookie(user))
+  }
+
+  beforeEach((done) => {
+    fix.clean().then(() => done())
+  });
 
   describe('main page', () => {
     it('redirect to login if no authToken cookie', () => {
       return chai.request(app)
         .get('/').then((res) => {
-          res.should.redirect
+          expect(res).to.redirect
         })
     })
 
     it('redirect to login if invalid authToken cookie', () => {
       return chai.request(app)
         .get('/').set('Cookie', 'authToken=123').then((res) => {
-          res.should.redirect
+          expect(res).to.redirect
         })
     })
 
     it('doesn\'t redirect to login if valid authToken cookie', () => {
-      let agent = chai.request.agent(app)
-      return insertUser({
-        username: 'alberto@test.com',
-        password: '$2a$10$C4WzVIUmt3K362LYkmubTu2YDUOsxn4dhaa0Yo.zdaPXiA56JqgYm'
-      }).then(() => {
-        return agent
-          .post('/api/users/login')
-          .set('Content-Type', 'application/json')
-          .send({username: 'alberto@test.com', password: 'myPass'})
-      }).then(() => {
-        return agent.get('/')
-      }).then((res) => {
-        res.should.not.redirect
-      })
+      return chai.request(app)
+        .get('/').set('Cookie', fix.authCookie(fix.newUser)).then((res) => {
+          expect(res).to.not.redirect
+        })
     })
   })
 
   describe('twitter', () => {
     var accountCollection = null;
 
-    const pendingAccount = {
-      userId: userObjectId,
-      pending: true,
-      type: SocialAccountService.TYPE.TWITTER,
-      auth: {
-        requestSecret: 'secret',
-        requestToken: 'token'
-      },
-      userData: null
-    }
-
-    beforeEach((done) => {
+    beforeEach(() => {
       accountCollection = DatabaseConnection.connection().get('social_accounts');
-
-      accountCollection.remove({}).then(() => done())
     });
 
     describe('requiring access', () => {
       var stub = null;
 
+      const pendingAccount = {
+        userId: fix.newUser.user._id,
+        pending: true,
+        type: SocialAccountService.TYPE.TWITTER,
+        auth: {
+          requestSecret: 'secret',
+          requestToken: 'token'
+        },
+        userData: null
+      }
+
       beforeEach(() => {
-        stub = sinon.stub(twitterApi.prototype, 'getRequestToken')
-        stub.callsArgWith(0, null, 'token', 'secret')
+        stub = sinon.stub(twitterApi.prototype, 'getRequestToken', twitterStub.getRequestToken)
       });
 
       afterEach(() => {
@@ -335,63 +280,56 @@ describe('TrackIt', () => {
       })
 
       it('redirects to twitter authorize page', (done) => {
-        chai.request(app)
-          .get('/twitter/access').set('Cookie', 'authToken=' + authToken)
-          .end(function(err, res) {
-            res.should.redirectTo('https://api.twitter.com/oauth/authenticate?oauth_token=token')
-            done()
-          });
+        goToPage('/twitter/access').end((err, res) => {
+          expect(res).to.redirectTo('https://api.twitter.com/oauth/authenticate?oauth_token=token')
+          done()
+        });
       })
 
       it('creates a pending social account', () => {
         const expectedAccount = pendingAccount
 
-        return chai.request(app)
-          .get('/twitter/access').set('Cookie', 'authToken=' + authToken)
-          .then(
-            () => Promise.reject('should have failed'),
-            () => {
-              return accountCollection.find({}).then((foundAccounts) => {
-                expect(foundAccounts).to.have.lengthOf(1);
+        return goToPage('/twitter/access').then(
+          () => Promise.reject('should have failed'),
+          () => {
+            return accountCollection.find({}).then((foundAccounts) => {
+              expect(foundAccounts).to.have.lengthOf(1);
 
-                const account = foundAccounts[0];
-                expectedAccount._id = account._id;
+              const account = foundAccounts[0];
+              expectedAccount._id = account._id;
 
-                expect(account).to.deep.equal(expectedAccount)
-              })
-            }
-          )
+              expect(account).to.deep.equal(expectedAccount)
+            })
+          }
+        )
       })
     })
 
     describe('obtaining access', () => {
       var accessStub = null, verifyStub = null;
 
-      const twitterUserData = {
-        id: 602106428,
-        name: "Electronic Mud",
-        screen_name: "e_muddy"
+      const twitterAccount = fix.twitter.accounts[124]
+      const pendingAccount = fix.userWithPendingAccount.pendingAccount;
+
+      const goToCallback = (user, token) => {
+        return goToPage('/twitter/callback', fix.userWithPendingAccount)
+          .query({oauth_token: pendingAccount.auth.requestToken, oauth_verifier: 'verifier'})
       }
 
-      const insertPendingAccount = () => {
-        return accountCollection.insert(pendingAccount)
-      }
+      beforeEach((done) => {
+        const accessStubMethod = twitterStub.getAccessToken(
+          {token: pendingAccount.auth.requestToken, secret: pendingAccount.auth.requestSecret, verifier: 'verifier'},
+          {accessToken: twitterAccount.auth.accessToken, accessSecret: twitterAccount.auth.accessSecret}
+        )
+        const verifyStubMethod = twitterStub.verifyCredentials(
+          {token: twitterAccount.auth.accessToken, secret: twitterAccount.auth.accessSecret},
+          twitterAccount.userData
+        )
 
-      const goToCallback = () => {
-        return insertPendingAccount().then(() => {
-          return chai.request(app)
-          .get('/twitter/callback')
-          .set('Cookie', 'authToken=' + authToken)
-          .query({oauth_token: 'token', oauth_verifier: 'verifier'})
-        })
-      }
+        accessStub = sinon.stub(twitterApi.prototype, 'getAccessToken', accessStubMethod)
+        verifyStub = sinon.stub(twitterApi.prototype, 'verifyCredentials', verifyStubMethod)
 
-      beforeEach(() => {
-        accessStub = sinon.stub(twitterApi.prototype, 'getAccessToken')
-        accessStub.callsArgWith(3, null, 'accessToken', 'accessSecret')
-
-        verifyStub = sinon.stub(twitterApi.prototype, 'verifyCredentials')
-        verifyStub.callsArgWith(2, null, twitterUserData)
+        fix.insertFixtures(fix.userWithPendingAccount).then(() => done())
       });
 
       afterEach(() => {
@@ -406,22 +344,22 @@ describe('TrackIt', () => {
 
       it('saves twitter info', () => {
         const expectedAccount = {
-          userId: userObjectId,
+          userId: fix.userWithPendingAccount.user._id,
           pending: false,
           type: SocialAccountService.TYPE.TWITTER,
-          name: twitterUserData.name,
-          username: twitterUserData.screen_name,
+          name: twitterAccount.userData.name,
+          username: twitterAccount.userData.screen_name,
           auth: {
-            requestSecret: 'secret',
-            requestToken: 'token',
-            accessToken: 'accessToken',
-            accessSecret: 'accessSecret'
+            requestToken: pendingAccount.auth.requestToken,
+            requestSecret: pendingAccount.auth.requestSecret,
+            accessToken: twitterAccount.auth.accessToken,
+            accessSecret: twitterAccount.auth.accessSecret
           },
-          userData: twitterUserData
+          userData: twitterAccount.userData
         }
 
         return goToCallback().then(() => {
-          return accountCollection.find({}).then((foundAccounts) => {
+          return accountCollection.find({'userData.id': expectedAccount.userData.id}).then((foundAccounts) => {
             expect(foundAccounts).to.have.lengthOf(1);
 
             const account = foundAccounts[0];
@@ -433,43 +371,15 @@ describe('TrackIt', () => {
       })
 
       it('doesn\'t duplicate/replace twitter account', () => {
-        const accountToInsert = {
-          userId: userObjectId,
-          pending: false,
-          type: SocialAccountService.TYPE.TWITTER,
-          name: twitterUserData.name,
-          username: twitterUserData.screen_name,
-          auth: {
-            requestSecret: 'requestSecret2',
-            requestToken: 'requestToken2',
-            accessToken: 'accessToken',
-            accessSecret: 'accessSecret'
-          },
-          userData: twitterUserData
-        }
-
-        return accountCollection.insert(accountToInsert).then((insertedAccount) => {
-          const expectedAccount = insertedAccount
-
+        return accountCollection.findOneAndUpdate({'userData.id': 123}, {$set: {'userData.id': 124}}).then((expectedAccount) => {
           return goToCallback().then(() => {
-            return accountCollection.find({}).then((foundAccounts) => {
+            return accountCollection.find({'userData.id': 124}).then((foundAccounts) => {
               expect(foundAccounts).to.have.lengthOf(1);
 
               const account = foundAccounts[0];
               expect(account).to.deep.equal(expectedAccount)
             })
           })
-        })
-      })
-
-      it('interacts with node twitter api', () => {
-        return goToCallback().then(() => {
-          expect(accessStub.args[0][0]).to.equal('token')
-          expect(accessStub.args[0][1]).to.equal('secret')
-          expect(accessStub.args[0][2]).to.equal('verifier')
-
-          expect(verifyStub.args[0][0]).to.equal('accessToken')
-          expect(verifyStub.args[0][1]).to.equal('accessSecret')
         })
       })
     })

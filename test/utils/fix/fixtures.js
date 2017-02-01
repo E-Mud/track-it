@@ -96,10 +96,34 @@ const userWithTrackedAccount2 = {
   ]
 }
 
+const userWithPendingAccount = {
+  user: {_id: userId('005'), username: 'user_with_pending_account@fix.com', password: '$2a$10$EnkIFoQ7Am8cRy9bMgMG3O4frFFMPZJ80QGfRs5j28HsPoJ.xyOJm'},
+  auth: {
+    password: 'mypass005',
+    authToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjAwMDAwMDAwMDAwMDAwMDAwMDAwMTAwNSIsInVzZXJuYW1lIjoidXNlcl93aXRoX3BlbmRpbmdfYWNjb3VudEBmaXguY29tIn0sImlhdCI6MTQ4NTk0NjIyMH0.vvx3U-wMHPobXhpEC-b0fgUaieMn-Go7Po2D3ZYaOns'
+  },
+  twitterAccount: twitterFixture.accounts[123],
+  account: {
+    _id: accountId('005'), userId: userId('005'), type: 'twitter', pending: false,
+    name: twitterFixture.accounts[123].userData.name, username: twitterFixture.accounts[123].userData.screen_name,
+    auth: twitterFixture.accounts[123].auth,
+    userData: twitterFixture.accounts[123].userData
+  },
+  pendingAccount: {
+    _id: accountId('055'), userId: userId('005'), type: 'twitter', pending: true,
+    auth: {
+      requestToken: twitterFixture.accounts[124].auth.requestToken + 'pending',
+      requestSecret: twitterFixture.accounts[124].auth.requestSecret + 'pending'
+    },
+    userData: null
+  }
+}
+
 export default {
   twitter: twitterFixture,
   newUser,
   userWithAccount,
   userWithTrackedAccount,
-  userWithTrackedAccount2
+  userWithTrackedAccount2,
+  userWithPendingAccount
 }
