@@ -156,6 +156,16 @@ describe('TrackIt API', () => {
             })
           })
       })
+
+      it('returns error if account not found', () => {
+        return post('/tracks', {url: fix.twitter.tweets[1240].url}, fix.userWithAccount)
+          .then(
+            (res) => Promise.reject('should have failed'),
+            (res) => {
+              expect(res).to.have.status(400)
+              expect(res.response.body).to.deep.equal({msg: 'not_found_account'})
+            })
+      })
     })
 
     describe('reading', () => {
