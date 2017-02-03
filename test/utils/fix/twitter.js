@@ -4,6 +4,37 @@ const utils = {
   }
 }
 
+const tweetsTemplates = [
+  {
+    data: {
+      text: 'This is just some text',
+      retweet_count: 2, favorite_count: 1,
+      entities: {urls: []}
+    },
+    preview: {text: 'This is just some text', links: []},
+    tracking: {retweets: 2, favorites: 1}
+  },
+  {
+    data: {
+      text: 'This is some text with an url https://t.co/iErndiRHUA',
+      retweet_count: 20, favorite_count: 10,
+      entities: {
+        urls: [{
+          url: 'https://t.co/iErndiRHUA',
+          expanded_url: 'http://littleatoms.com/news-science/donald-trump-didnt-win-election-through-facebook',
+          display_url: 'littleatoms.com/news-science/d…',
+          indices: [ 30, 53 ]
+        }]
+      }
+    },
+    preview: {
+      text: 'This is some text with an url https://t.co/iErndiRHUA',
+      links: ['https://t.co/iErndiRHUA']
+    },
+    tracking: {retweets: 20, favorites: 10}
+  }
+]
+
 const generateTweets = (userId, total) => {
   const tweets = [];
 
@@ -11,7 +42,9 @@ const generateTweets = (userId, total) => {
     let tweetId = userId * 10 + i
     tweets.push({
       error: null,
-      data: {id: tweetId, user: {id: userId}},
+      data: Object.assign({id: tweetId, user: {id: userId}}, tweetsTemplates[i].data),
+      preview: tweetsTemplates[i].preview,
+      tracking: tweetsTemplates[i].tracking,
       url: utils.tweetUrl(tweetId)
     })
   }

@@ -136,6 +136,20 @@ class TwitterService {
       })
     })
   }
+
+  getPreview(contentItem) {
+    return {
+      text: contentItem.text,
+      links: contentItem.entities.urls.map((url) => url.url)
+    }
+  }
+
+  getTracking(contentItem) {
+    return {
+      retweets: contentItem.retweet_count || 0,
+      favorites: contentItem.favorite_count || 0
+    }
+  }
 }
 
 export default TwitterService

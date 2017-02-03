@@ -17,11 +17,14 @@ export default {
 
       return socialService.getContentItem(track.url).then((contentItem) => {
         trackToCreate.contentItem = contentItem;
+        trackToCreate.preview = socialService.getPreview(contentItem)
+        trackToCreate.tracking = socialService.getTracking(contentItem)
 
         return socialService.getAccountForContentItem(trackToCreate.userId, contentItem).then((socialAccount) => {
           if(socialAccount){
             trackToCreate.socialAccountId = monk.id(socialAccount._id);
-            
+            trackToCreate.author = socialAccount.name
+
             return collection.insert(trackToCreate)
           }else{
             throw new Error('not_found_account')

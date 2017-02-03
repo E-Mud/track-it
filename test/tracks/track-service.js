@@ -20,6 +20,9 @@ describe('TrackService', () => {
       track1230 = {
         userId: user.user._id.toString(),
         url: fix.twitter.tweets[1230].url
+      }, track1231 = {
+        userId: user.user._id.toString(),
+        url: fix.twitter.tweets[1231].url
       };
 
     var tweetStub = null, tracksCollection = null;
@@ -62,6 +65,37 @@ describe('TrackService', () => {
       })
     })
 
+    it('adds text tweet information to new track', () => {
+      let trackToCreate = track1230
+
+      return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
+        expect(returnedTrack.preview).to.deep.equal(fix.twitter.tweets[1230].preview)
+      })
+    })
+
+    it('adds text + url tweet information to new track', () => {
+      let trackToCreate = track1231
+
+      return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
+        expect(returnedTrack.preview).to.deep.equal(fix.twitter.tweets[1231].preview)
+      })
+    })
+
+    it('adds tracking information to new track', () => {
+      let trackToCreate = track1230
+
+      return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
+        expect(returnedTrack.tracking).to.deep.equal(fix.twitter.tweets[1230].tracking)
+      })
+    })
+
+    it('adds author information to new track', () => {
+      let trackToCreate = track1230
+
+      return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
+        expect(returnedTrack.author).to.equal(fix.twitter.accounts[123].userData.name)
+      })
+    })
 
     it('adds socialAccountId to new track', () => {
       let trackToCreate = track1230
