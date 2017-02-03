@@ -1,6 +1,5 @@
 import React from 'react';
 import {render} from 'react-dom';
-import './modal.styl';
 
 function Modal(WrappedComponent, opt = {}) {
   opt = Object.assign({

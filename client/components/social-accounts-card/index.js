@@ -1,5 +1,6 @@
 import React from 'react';
 import Card from '../card';
+import FaTwitter from 'react-icons/lib/fa/twitter'
 
 class SocialAccountsCard extends React.Component {
   render() {
@@ -9,7 +10,8 @@ class SocialAccountsCard extends React.Component {
           {this.props.socialAccounts.map((account) => {
             return (
               <div key={account._id} className={'padded-base flex-container start-center'}>
-                <div className={'flex'}>
+                <div className={'flex padded-base-top'}>
+                  <FaTwitter size={20} className={'icon margin-base-right'} />
                   {account.name}
                   <span className={'secondary-text'}> @{account.username}</span>
                 </div>

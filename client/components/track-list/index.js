@@ -13,7 +13,7 @@ class TrackList extends React.Component {
         {
           this.props.trackList.map((track) => {
               return (
-                <Card className={'padded-base margin-base-bottom'} key={track._id}>
+                <Card className={'margin-base-bottom'} key={track._id}>
                   <Track track={track}/>
                 </Card>
               );

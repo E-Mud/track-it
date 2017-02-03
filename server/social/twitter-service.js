@@ -131,6 +131,9 @@ class TwitterService {
         if(error){
           reject(new Error('not_found_content'))
         }else{
+          console.log(data)
+          console.log("URLS", data.entities.urls)
+          console.log("MEDIA", data.entities.media)
           resolve(data)
         }
       })
