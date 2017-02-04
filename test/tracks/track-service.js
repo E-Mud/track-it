@@ -62,10 +62,11 @@ describe('TrackService', () => {
 
       return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
         expect(returnedTrack.contentItem).to.deep.equal(fix.twitter.tweets[1230].data)
+        expect(returnedTrack.contentItemId).to.deep.equal(fix.twitter.tweets[1230].data.id)
       })
     })
 
-    it('adds text tweet information to new track', () => {
+    it('adds text tweet preview to new track', () => {
       let trackToCreate = track1230
 
       return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
@@ -73,7 +74,7 @@ describe('TrackService', () => {
       })
     })
 
-    it('adds text + url tweet information to new track', () => {
+    it('adds text + url tweet preview to new track', () => {
       let trackToCreate = track1231
 
       return TrackService.createTrack(trackToCreate).then((returnedTrack) => {

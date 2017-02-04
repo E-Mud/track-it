@@ -15,12 +15,10 @@ export default {
 
       trackToCreate.userId = monk.id(trackToCreate.userId)
 
-      return socialService.getContentItem(track.url).then((contentItem) => {
-        trackToCreate.contentItem = contentItem;
-        trackToCreate.preview = socialService.getPreview(contentItem)
-        trackToCreate.tracking = socialService.getTracking(contentItem)
+      return socialService.buildTrack(track.url).then((track) => {
+        Object.assign(trackToCreate, track)
 
-        return socialService.getAccountForContentItem(trackToCreate.userId, contentItem).then((socialAccount) => {
+        return socialService.getAccountForContentItem(trackToCreate.userId, trackToCreate.contentItem).then((socialAccount) => {
           if(socialAccount){
             trackToCreate.socialAccountId = monk.id(socialAccount._id);
             trackToCreate.author = socialAccount.name
