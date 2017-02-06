@@ -4,7 +4,7 @@ services:
     build: .
     command: nodemon --ignore client/ index
     ports:
-      - "8080:3000"
+      - "8080:4000"
     volumes:
       - .:/app/
     environment:
