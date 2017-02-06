@@ -86,9 +86,9 @@ const userWithTrackedAccount2 = {
   },
   account: {
     _id: accountId('004'), userId: userId('004'), type: 'twitter', pending: false,
-    name: twitterFixture.accounts[124].userData.name, username: twitterFixture.accounts[124].userData.screen_name,
-    auth: twitterFixture.accounts[124].auth,
-    userData: twitterFixture.accounts[124].userData
+    name: twitterFixture.accounts[125].userData.name, username: twitterFixture.accounts[125].userData.screen_name,
+    auth: twitterFixture.accounts[125].auth,
+    userData: twitterFixture.accounts[125].userData
   },
   tracks: [
     {

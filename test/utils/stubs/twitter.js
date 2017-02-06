@@ -20,6 +20,16 @@ const validateTweetRequest = (type, params) => {
   }
 }
 
+const validateTweetBulkRequest = (type, params) => {
+  if(type !== 'lookup'){
+    throw new Error('incorrect method')
+  }
+
+  if(!params || !params.trim_user){
+    throw new Error('incorrect params')
+  }
+}
+
 export default {
   relatedSocialAccount,
 
@@ -30,6 +40,35 @@ export default {
 
     const tweet = tweets[params.id]
     callback(tweet.error, tweet.data)
+  },
+
+  getTweetBulk: (expected) => {
+    return (type, params, token, secret, callback) => {
+      validateTweetBulkRequest(type, params)
+
+      const idArray = params.id.split(',')
+
+      const tweetArray = idArray.map((id) => {
+        const tweet = JSON.parse(JSON.stringify(tweets[id]))
+
+        const twitterAuth = expected[tweet.data.user.id]
+
+        if(!twitterAuth){
+          throw new Error('tweet doesn\'t belong to expected user')
+        }
+
+        if(twitterAuth.token !== token || twitterAuth.secret !== secret){
+          throw new Error('wrong auth params')
+        }
+
+        tweet.data.retweet_count *= 10
+        tweet.data.favorite_count *= 10
+
+        return tweet.data
+      })
+
+      callback(null, tweetArray)
+    }
   },
 
   getRequestToken: (callback) => {

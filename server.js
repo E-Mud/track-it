@@ -1,5 +1,6 @@
 import path from 'path';
 import express from 'express';
+import http from 'http';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
@@ -12,6 +13,7 @@ import socialAccountApiRouter from './server/social/social-account-api-router';
 const isDeveloping = process.env.NODE_ENV !== 'production';
 const port = isDeveloping ? 3000 : process.env.PORT;
 const app = express();
+const server = http.Server(app);
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -98,7 +100,7 @@ app.get('/', (req, res) => {
 });
 
 if(process.env.NODE_ENV !== 'test'){
-  app.listen(port, '0.0.0.0', function onStart(err) {
+  server.listen(port, '0.0.0.0', function onStart(err) {
     if (err) {
       console.log(err);
     }
@@ -106,4 +108,4 @@ if(process.env.NODE_ENV !== 'test'){
   });
 }
 
-export default app;
+export default server

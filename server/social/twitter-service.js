@@ -2,6 +2,7 @@ import monk from 'monk';
 import TwitterApi from 'node-twitter-api';
 import SocialAccountBase from './social-account-base';
 
+const TWITTER_LOOKUP_LIMIT = 100
 const TYPE = 'twitter'
 
 class TwitterService {
@@ -137,10 +138,6 @@ class TwitterService {
     })
   }
 
-  getContentItemId(contentItem) {
-    return contentItem.id
-  }
-
   getPreview(contentItem) {
     return {
       text: contentItem.text,
@@ -148,10 +145,10 @@ class TwitterService {
     }
   }
 
-  getTracking(contentItem) {
+  getTracking(tweet) {
     return {
-      retweets: contentItem.retweet_count || 0,
-      favorites: contentItem.favorite_count || 0
+      retweets: tweet.retweet_count || 0,
+      favorites: tweet.favorite_count || 0
     }
   }
 
@@ -164,6 +161,40 @@ class TwitterService {
       result.tracking = this.getTracking(tweet)
 
       return result
+    })
+  }
+
+  getUpdatedTracking(fullTrackList) {
+    const chunkedTrackList = [];
+
+    for(let i=0; i<fullTrackList.length; i += TWITTER_LOOKUP_LIMIT){
+      chunkedTrackList.push(fullTrackList.slice(i, i + TWITTER_LOOKUP_LIMIT))
+    }
+
+    const promiseArray = chunkedTrackList.map((trackList) => {
+      const idList = trackList.map((track) => track.contentItemId).join(',')
+
+      return new Promise((resolve, reject) => {
+        this.twitterApi.statuses('lookup', {id: idList, trim_user: true}, this.accessToken, this.accessSecret, (error, data) => {
+          if(error){
+            reject(error)
+          }else{
+            const updatedTracking = data.map((tweet) => {
+              const relatedTrack = trackList.find((track) => track.contentItemId === tweet.id)
+
+              return Object.assign({}, relatedTrack, {tracking: this.getTracking(tweet)})
+            })
+
+            resolve(updatedTracking)
+          }
+        })
+      })
+    })
+
+    return Promise.all(promiseArray).then((result) => {
+      return result.reduce((acc, tracks) => {
+        return acc.concat(tracks)
+      }, [])
     })
   }
 }

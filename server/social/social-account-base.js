@@ -17,6 +17,10 @@ export default {
   },
 
   getCompleteAccounts: (userId) => {
-    return collection.find({userId: monk.id(userId), pending: false})
+    if(userId){
+      return collection.find({userId: monk.id(userId), pending: false})
+    }else{
+      return collection.find({pending: false})
+    }
   }
 }

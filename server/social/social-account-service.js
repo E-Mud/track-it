@@ -1,4 +1,5 @@
 import TwitterService from './twitter-service';
+import SocialAccountBase from './social-account-base';
 
 const TYPE = {
   TWITTER: TwitterService.type()
@@ -10,6 +11,10 @@ const services = {
 
 export default Object.assign({}, services, {
   TYPE,
+
+  getCompleteAccounts: SocialAccountBase.getCompleteAccounts,
+
+  createAccount: SocialAccountBase.createAccount,
 
   forType: (type) => {
     const service = services[type]

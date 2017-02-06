@@ -161,4 +161,70 @@ describe('TrackService', () => {
       })
     })
   })
+
+  describe('on track update', () => {
+    var tracksCollection = null, updateStub = null;
+
+    beforeEach((done) => {
+      tracksCollection = DatabaseConnection.connection().get('tracks')
+
+      const expectedParams = {
+        124: {
+          token: fix.userWithTrackedAccount.account.auth.accessToken,
+          secret: fix.userWithTrackedAccount.account.auth.accessSecret,
+        },
+        125: {
+          token: fix.userWithTrackedAccount2.account.auth.accessToken,
+          secret: fix.userWithTrackedAccount2.account.auth.accessSecret,
+        }
+      }
+
+      updateStub = sinon.stub(twitterApi.prototype, 'statuses', twitterStub.getTweetBulk(expectedParams))
+
+      fix.insertFixtures([fix.userWithTrackedAccount, fix.userWithTrackedAccount2]).then(() => done())
+    })
+
+    afterEach(() => {
+      updateStub.restore()
+    })
+
+    it('updates tracking info of tracks', () => {
+      return TrackService.updateTracks().then(() => {
+        return tracksCollection.find(
+          {userId: {$in: [fix.userWithTrackedAccount.user._id, fix.userWithTrackedAccount2.user._id]}}
+        ).then((tracks) => {
+          tracks.forEach((track) => {
+            const relatedTweet = fix.twitter.tweets[track.contentItem.id].data
+            expect(track.tracking.retweets).to.equal(relatedTweet.retweet_count * 10)
+            expect(track.tracking.favorites).to.equal(relatedTweet.favorite_count * 10)
+          })
+        })
+      })
+    })
+
+    it('returns updated tracks mapped by user id', () => {
+      return TrackService.updateTracks().then((result) => {
+        return tracksCollection.find(
+          {userId: {$in: [fix.userWithTrackedAccount.user._id, fix.userWithTrackedAccount2.user._id]}}
+        ).then((tracks) => {
+          const count = {}, firstUserId = fix.userWithTrackedAccount.user._id.toString(),
+            secondUserId = fix.userWithTrackedAccount2.user._id.toString()
+
+          count[firstUserId] = 0
+          count[secondUserId] = 0
+
+          tracks.forEach((track) => {
+            const userTracks = result[track.userId.toString()]
+
+            count[track.userId.toString()]++
+
+            expect(userTracks).to.deep.include(track)
+          })
+
+          expect(result[firstUserId]).to.have.lengthOf(count[firstUserId])
+          expect(result[secondUserId]).to.have.lengthOf(count[secondUserId])
+        })
+      })
+    })
+  })
 })
