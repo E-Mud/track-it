@@ -157,7 +157,7 @@ class TwitterService {
       const result = {contentItem: tweet}
 
       result.preview = this.getPreview(tweet)
-      result.contentItemId = tweet.id
+      result.contentItemId = tweet.id_str
       result.tracking = this.getTracking(tweet)
 
       return result
@@ -180,7 +180,7 @@ class TwitterService {
             reject(error)
           }else{
             const updatedTracking = data.map((tweet) => {
-              const relatedTrack = trackList.find((track) => track.contentItemId === tweet.id)
+              const relatedTrack = trackList.find((track) => track.contentItemId === tweet.id_str)
 
               return Object.assign({}, relatedTrack, {tracking: this.getTracking(tweet)})
             })

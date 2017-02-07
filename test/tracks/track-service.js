@@ -19,10 +19,10 @@ describe('TrackService', () => {
     const user = fix.userWithAccount,
       track1230 = {
         userId: user.user._id.toString(),
-        url: fix.twitter.tweets[1230].url
+        url: fix.twitter.tweets['1230'].url
       }, track1231 = {
         userId: user.user._id.toString(),
-        url: fix.twitter.tweets[1231].url
+        url: fix.twitter.tweets['1231'].url
       };
 
     var tweetStub = null, tracksCollection = null;
@@ -61,8 +61,8 @@ describe('TrackService', () => {
       let trackToCreate = track1230
 
       return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
-        expect(returnedTrack.contentItem).to.deep.equal(fix.twitter.tweets[1230].data)
-        expect(returnedTrack.contentItemId).to.deep.equal(fix.twitter.tweets[1230].data.id)
+        expect(returnedTrack.contentItem).to.deep.equal(fix.twitter.tweets['1230'].data)
+        expect(returnedTrack.contentItemId).to.deep.equal(fix.twitter.tweets['1230'].data.id_str)
       })
     })
 
@@ -70,7 +70,7 @@ describe('TrackService', () => {
       let trackToCreate = track1230
 
       return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
-        expect(returnedTrack.preview).to.deep.equal(fix.twitter.tweets[1230].preview)
+        expect(returnedTrack.preview).to.deep.equal(fix.twitter.tweets['1230'].preview)
       })
     })
 
@@ -78,7 +78,7 @@ describe('TrackService', () => {
       let trackToCreate = track1231
 
       return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
-        expect(returnedTrack.preview).to.deep.equal(fix.twitter.tweets[1231].preview)
+        expect(returnedTrack.preview).to.deep.equal(fix.twitter.tweets['1231'].preview)
       })
     })
 
@@ -86,7 +86,7 @@ describe('TrackService', () => {
       let trackToCreate = track1230
 
       return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
-        expect(returnedTrack.tracking).to.deep.equal(fix.twitter.tweets[1230].tracking)
+        expect(returnedTrack.tracking).to.deep.equal(fix.twitter.tweets['1230'].tracking)
       })
     })
 
@@ -109,7 +109,7 @@ describe('TrackService', () => {
     it('throws not_found_content if tweet not found', () => {
       let trackToCreate = {
         userId: track1230.userId,
-        url: fix.twitter.tweets[404].url
+        url: fix.twitter.tweets['404'].url
       }
 
       const promise = TrackService.createTrack(trackToCreate)
@@ -131,7 +131,7 @@ describe('TrackService', () => {
     it('throws not_found_account if there is no user\'s account for the tweet', () => {
       let trackToCreate = {
         userId: track1230.userId,
-        url: fix.twitter.tweets[1240].url
+        url: fix.twitter.tweets['1240'].url
       }
 
       return fix.insertFixtures(fix.userWithTrackedAccount).then(() => {
@@ -194,7 +194,7 @@ describe('TrackService', () => {
           {userId: {$in: [fix.userWithTrackedAccount.user._id, fix.userWithTrackedAccount2.user._id]}}
         ).then((tracks) => {
           tracks.forEach((track) => {
-            const relatedTweet = fix.twitter.tweets[track.contentItem.id].data
+            const relatedTweet = fix.twitter.tweets[track.contentItemId].data
             expect(track.tracking.retweets).to.equal(relatedTweet.retweet_count * 10)
             expect(track.tracking.favorites).to.equal(relatedTweet.favorite_count * 10)
           })

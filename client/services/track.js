@@ -1,4 +1,7 @@
 import api from './api';
+import io from 'socket.io-client';
+
+let connectStream = null
 
 export default {
   getTracks: () => {
@@ -9,6 +12,20 @@ export default {
   createTrack: (newTrack) => {
     return api.post('tracks', newTrack).then((res) => {
       return res.data
+    })
+  },
+  connectToUpdateStream: (callback) => {
+    const options = {
+      transports: ['websocket'],
+      path: '/stream',
+      query: 'auth_token=' + api.getAuthToken()
+    }
+
+    connectStream = io(window.location.hostname + ':' + window.location.port, options)
+
+    connectStream.on('connect', () => {
+      console.log("Connected")
+      connectStream.on('tracks/update', callback)
     })
   }
 }

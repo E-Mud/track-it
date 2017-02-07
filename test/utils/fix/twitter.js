@@ -39,10 +39,11 @@ const generateTweets = (userId, total) => {
   const tweets = [];
 
   for(let i=0; i<total; i++){
+    let wrongTweetId = userId * 100 + i
     let tweetId = userId * 10 + i
     tweets.push({
       error: null,
-      data: Object.assign({id: tweetId, user: {id: userId}}, tweetsTemplates[i].data),
+      data: Object.assign({id: wrongTweetId, id_str: tweetId, user: {id: userId}}, tweetsTemplates[i].data),
       preview: tweetsTemplates[i].preview,
       tracking: tweetsTemplates[i].tracking,
       url: utils.tweetUrl(tweetId)
@@ -98,7 +99,7 @@ const accounts = {
 }
 
 const indexedTweets = {
-  404: {
+  '404': {
     error: {
       statusCode: 404,
       data: '{"errors":[{"code":144,"message":"No status found with that ID."}]}'
@@ -112,7 +113,7 @@ for (var accountId in accounts) {
   let acc = accounts[accountId]
 
   acc.tweets.forEach((tweet) => {
-    indexedTweets[tweet.data.id] = tweet
+    indexedTweets[tweet.data.id_str] = tweet
   })
 }
 

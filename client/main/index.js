@@ -11,6 +11,18 @@ import './index.styl';
 class MainPage extends React.Component {
   constructor(props) {
     super(props);
+
+    Track.connectToUpdateStream((updatedTracks) => {
+      this.props.trackList.forEach((track) => {
+        const updatedTrack = updatedTracks.find((tr) => tr._id === track._id)
+
+        if(updatedTrack){
+          track.tracking = updatedTrack.tracking
+        }
+      })
+
+      this.forceUpdate()
+    })
   }
 
   onTrackCreated(trackToCreate, creationPromise) {

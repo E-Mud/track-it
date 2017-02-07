@@ -33,7 +33,7 @@ services:
       - DB_PORT=27017
       - DB_DATABASE=trackitdb
     links:
-      - db
+      - testdb
   production:
     build: .
     ports:
@@ -52,5 +52,7 @@ services:
     image: mongo
     volumes:
       - dbvolume:/data/db
+  testdb:
+    image: mongo
 volumes:
   dbvolume:

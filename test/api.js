@@ -147,7 +147,7 @@ describe('TrackIt API', () => {
       })
 
       it('creates track with current user\'s id', () => {
-        return post('/tracks', {url: fix.twitter.tweets[1230].url}, fix.userWithAccount)
+        return post('/tracks', {url: fix.twitter.tweets['1230'].url}, fix.userWithAccount)
           .then((res) => {
             expect(res.body.userId).to.equal(fix.userWithAccount.user._id.toString())
             return trackCollection.findOne(res.body._id).then((createdTrack) => {
@@ -157,7 +157,7 @@ describe('TrackIt API', () => {
       })
 
       it('returns error if account not found', () => {
-        return post('/tracks', {url: fix.twitter.tweets[1240].url}, fix.userWithAccount)
+        return post('/tracks', {url: fix.twitter.tweets['1240'].url}, fix.userWithAccount)
           .then(
             (res) => Promise.reject('should have failed'),
             (res) => {

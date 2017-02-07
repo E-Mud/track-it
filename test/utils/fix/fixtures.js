@@ -60,20 +60,20 @@ const userWithTrackedAccount = {
     {
       _id: trackId('030'), userId: userId('003'), socialAccountId: accountId('003'),
       url: 'https://twitter.com/e_muddy/status/1240',
-      contentItem: twitterFixture.tweets[1240].data,
-      contentItemId: twitterFixture.tweets[1240].data.id,
+      contentItem: twitterFixture.tweets['1240'].data,
+      contentItemId: twitterFixture.tweets['1240'].data.id_str,
       author: twitterFixture.accounts[124].userData.name,
-      preview: twitterFixture.tweets[1240].preview,
-      tracking: twitterFixture.tweets[1240].tracking
+      preview: twitterFixture.tweets['1240'].preview,
+      tracking: twitterFixture.tweets['1240'].tracking
     },
     {
       _id: trackId('031'), userId: userId('003'), socialAccountId: accountId('003'),
       url: 'https://twitter.com/e_muddy/status/1241',
-      contentItem: twitterFixture.tweets[1241].data,
-      contentItemId: twitterFixture.tweets[1241].data.id,
+      contentItem: twitterFixture.tweets['1241'].data,
+      contentItemId: twitterFixture.tweets['1241'].data.id_str,
       author: twitterFixture.accounts[124].userData.name,
-      preview: twitterFixture.tweets[1241].preview,
-      tracking: twitterFixture.tweets[1241].tracking
+      preview: twitterFixture.tweets['1241'].preview,
+      tracking: twitterFixture.tweets['1241'].tracking
     }
   ]
 }
@@ -94,20 +94,20 @@ const userWithTrackedAccount2 = {
     {
       _id: trackId('040'), userId: userId('004'), socialAccountId: accountId('004'),
       url: 'https://twitter.com/e_muddy/status/1250',
-      contentItem: twitterFixture.tweets[1250].data,
-      contentItemId: twitterFixture.tweets[1250].data.id,
+      contentItem: twitterFixture.tweets['1250'].data,
+      contentItemId: twitterFixture.tweets['1250'].data.id_str,
       author: twitterFixture.accounts[125].userData.name,
-      preview: twitterFixture.tweets[1250].preview,
-      tracking: twitterFixture.tweets[1250].tracking
+      preview: twitterFixture.tweets['1250'].preview,
+      tracking: twitterFixture.tweets['1250'].tracking
     },
     {
       _id: trackId('041'), userId: userId('004'), socialAccountId: accountId('004'),
       url: 'https://twitter.com/e_muddy/status/1251',
-      contentItem: twitterFixture.tweets[1251].data,
-      contentItemId: twitterFixture.tweets[1251].data.id,
+      contentItem: twitterFixture.tweets['1251'].data,
+      contentItemId: twitterFixture.tweets['1251'].data.id_str,
       author: twitterFixture.accounts[125].userData.name,
-      preview: twitterFixture.tweets[1251].preview,
-      tracking: twitterFixture.tweets[1251].tracking
+      preview: twitterFixture.tweets['1251'].preview,
+      tracking: twitterFixture.tweets['1251'].tracking
     }
   ]
 }
