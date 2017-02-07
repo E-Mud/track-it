@@ -8,7 +8,6 @@ import sinon from 'sinon';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import chaiHTTP from 'chai-http';
-var should = chai.should();
 var expect = chai.expect;
 import app from '../server.js';
 chai.use(chaiAsPromised);

@@ -6,19 +6,23 @@ import cookieParser from 'cookie-parser';
 
 import TrackItAPI from './server/api';
 import TrackItApp from './server/app';
+import TrackItStream from './server/stream';
+import Tracker from './server/tracks/tracker';
 
-const port = process.env.PORT || 3000;
 let app = express();
+app = TrackItAPI.server(app)
+app = TrackItApp.server(app)
 
-app = TrackItAPI(app)
-app = TrackItApp(app)
-
-const server = http.Server(app);
+let server = http.Server(app);
+server = TrackItStream.server(server)
 
 if(process.env.NODE_ENV !== 'test'){
+  const port = process.env.PORT || 3000;
   server.listen(port, '0.0.0.0', function onStart(err) {
     if (err) {
       console.log(err);
+    }else{
+      Tracker.startTracking()
     }
     console.info('==> 🌎 Listening on port %s. Open up http://0.0.0.0:%s/ in your browser.', port, port);
   });
