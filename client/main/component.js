@@ -42,7 +42,7 @@ class MainPage extends React.Component {
     return (
       <div className={'flex-container column full-height background'}>
         <AppBar />
-        <div className={'flex-container padded-base-top center-start'}>
+        <div className={'scrollable flex-container padded-base-top center-start'}>
           <div className={'flex-70 flex-container'}>
             <div className={'flex-50 padded-base padded-large-right'}>
               <SectionHeader className={'margin-base-bottom'} header={'Accounts'} />
