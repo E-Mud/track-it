@@ -20,10 +20,9 @@ class CreateTrack extends React.Component {
   }
 
   resetState() {
-    this.state = {
-      newTrack: {url: ''},
-      addButtonDisabled: true
-    }
+    this.state.addButtonDisabled = true
+    this.state.newTrack.url = ''
+
     this.setState(this.state)
   }
 
@@ -43,7 +42,6 @@ class CreateTrack extends React.Component {
       this.resetState()
       return res;
     }, (error) => {
-      this.resetState()
       return Promise.reject(error);
     })
 

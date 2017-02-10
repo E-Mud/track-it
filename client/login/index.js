@@ -33,7 +33,6 @@ class LoginPage extends React.Component {
         username: this.state.user.username,
         password: this.state.user.password
       }).then(() => {
-        this.setState({loginDisabled: false})
         window.location.href = '/'
       }, ({data}) => {
         this.setState({loginDisabled: false})

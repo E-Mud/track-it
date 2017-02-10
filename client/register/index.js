@@ -4,6 +4,7 @@ import css from './index.styl';
 import Card from '../components/card';
 import User from '../services/user';
 import AlertDialog from '../components/alert-dialog';
+import FormFields from '../components/form-fields';
 
 const errorStrings = {
   'used_username': 'The specified username is alredy used'
@@ -13,23 +14,29 @@ class RegisterPage extends React.Component {
   constructor() {
     super();
     this.state = {
-      username: '',
-      password: '',
-      confirmPassword: '',
+      user: {
+        username: '',
+        password: '',
+        confirmPassword: ''
+      },
       registerDisabled: true
     }
   }
 
+  get user() {
+    return this.state.user
+  }
+
   canRegister() {
-    return this.state.username && this.state.password && this.state.password === this.state.confirmPassword
+    return this.user.username && this.user.password && this.user.password === this.user.confirmPassword
   }
 
   register() {
     if(this.canRegister()){
       this.setState({registerDisabled: true})
       User.registerUser({
-        username: this.state.username,
-        password: this.state.password
+        username: this.user.username,
+        password: this.user.password
       }).then(() => {
         this.setState({registerDisabled: false})
 
@@ -46,9 +53,7 @@ class RegisterPage extends React.Component {
     }
   }
 
-  valueChanged(event) {
-    this.state[event.target.name] = event.target.value
-
+  valueChanged() {
     this.state.registerDisabled = !this.canRegister()
 
     this.setState(this.state)
@@ -69,25 +74,25 @@ class RegisterPage extends React.Component {
       <div className={'flex-container full-height background center-center'} onKeyUp={onKeyUp}>
         <Card className={'flex-25 padded-base'}>
           <div className={'padded-base'}>
-            <input
+            <FormFields.Input
               type='email'
-              value={this.state.username}
+              model={this.user}
               onChange={valueChanged}
               name={'username'}
               placeholder='Email' />
           </div>
           <div className={'padded-base'}>
-            <input
+            <FormFields.Input
               type='password'
-              value={this.state.password}
+              model={this.user}
               onChange={valueChanged}
               name={'password'}
               placeholder='Password' />
           </div>
           <div className={'padded-base'}>
-            <input
+            <FormFields.Input
               type='password'
-              value={this.state.confirmPassword}
+              model={this.user}
               onChange={valueChanged}
               name={'confirmPassword'}
               placeholder='Confirm Password' />
