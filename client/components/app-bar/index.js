@@ -19,7 +19,7 @@ class AppBar extends React.Component {
             <span className={'main-text app-title'}>Track It</span>
           </div>
           <div className={'flex-20 flex-container end-center padded-base-right'}>
-            <button className={'icon-button'} onClick={logout}>
+            <button className={'icon-button'} onClick={this.logout}>
               <FaPowerOff size={18} className={'icon'}/>
             </button>
           </div>

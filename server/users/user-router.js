@@ -20,4 +20,8 @@ router.post('/login', (req, res) => {
   )
 })
 
+router.post('/logout', (req, res) => {
+  res.clearCookie('authToken').json({msg: 'User logged out'})
+})
+
 module.exports = router;
