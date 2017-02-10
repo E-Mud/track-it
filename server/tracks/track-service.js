@@ -19,17 +19,23 @@ class TrackService {
       trackToCreate.userId = monk.id(trackToCreate.userId)
 
       return socialService.buildTrack(track.url).then((track) => {
-        Object.assign(trackToCreate, track)
-
-        return socialService.getAccountForContentItem(trackToCreate.userId, trackToCreate.contentItem).then((socialAccount) => {
-          if(socialAccount){
-            trackToCreate.socialAccountId = monk.id(socialAccount._id);
-            trackToCreate.author = socialAccount.name
-
-            return this.collection.insert(trackToCreate)
-          }else{
-            throw new Error('not_found_account')
+        return this.collection.findOne({userId: trackToCreate.userId, contentItemId: track.contentItemId}).then((foundTrack) => {
+          if(foundTrack){
+            throw new Error('already_tracked')
           }
+
+          Object.assign(trackToCreate, track)
+
+          return socialService.getAccountForContentItem(trackToCreate.userId, trackToCreate.contentItem).then((socialAccount) => {
+            if(socialAccount){
+              trackToCreate.socialAccountId = monk.id(socialAccount._id);
+              trackToCreate.author = socialAccount.name
+
+              return this.collection.insert(trackToCreate)
+            }else{
+              throw new Error('not_found_account')
+            }
+          })
         })
       })
     }

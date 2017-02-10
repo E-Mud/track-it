@@ -117,6 +117,14 @@ describe('TrackService', () => {
       return expect(promise).to.be.rejectedWith('not_found_content');
     })
 
+    it('throws already_tracked if track already exists', () => {
+      let trackToCreate = track1230
+
+      const promise = TrackService.createTrack(trackToCreate).then(() => TrackService.createTrack(trackToCreate))
+
+      return expect(promise).to.be.rejectedWith('already_tracked');
+    })
+
     it('throws invalid_url if not valid tweet url', () => {
       let trackToCreate = {
         userId: track1230.userId,
