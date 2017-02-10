@@ -2,6 +2,14 @@ import React from 'react';
 import Track from '../../services/track'
 import Card from '../card'
 import FormFields from '../form-fields'
+import AlertDialog from '../alert-dialog'
+
+const ErrorDialog = AlertDialog.errorDialog({
+  'not_found_content': 'We couldn\'t find a tweet with that URL',
+  'already_tracked': 'You are already tracking that tweet',
+  'invalid_url': 'That\'s not a valid Tweet URL',
+  'not_found_account': 'You cannot track a tweet that is not authored by you. Maybe you need to add the account?'
+})
 
 class CreateTrack extends React.Component {
   constructor(props) {
@@ -41,9 +49,7 @@ class CreateTrack extends React.Component {
     const promise = Track.createTrack(trackToCreate).then((res) => {
       this.resetState()
       return res;
-    }, (error) => {
-      return Promise.reject(error);
-    })
+    }, (res) => ErrorDialog.showRejectedHttpPromise(res))
 
     if(this.props.onTrackCreated){
       this.props.onTrackCreated(trackToCreate, promise)

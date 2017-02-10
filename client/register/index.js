@@ -7,8 +7,10 @@ import AlertDialog from '../components/alert-dialog';
 import FormFields from '../components/form-fields';
 
 const errorStrings = {
-  'used_username': 'The specified username is alredy used'
+  'used_username': 'The specified username is already used'
 }
+
+const ErrorDialog = AlertDialog.errorDialog(errorStrings)
 
 class RegisterPage extends React.Component {
   constructor() {
@@ -43,12 +45,10 @@ class RegisterPage extends React.Component {
         AlertDialog.show({
           msg: 'User created succesfully'
         }).then(() => window.location.href = '/login')
-      }, ({data}) => {
+      }, (res) => {
         this.setState({registerDisabled: false})
 
-        AlertDialog.show({
-          msg: errorStrings[data.msg]
-        })
+        ErrorDialog.showRejectedHttpPromise(res)
       })
     }
   }

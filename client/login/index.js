@@ -7,8 +7,10 @@ import AlertDialog from '../components/alert-dialog';
 import FormFields from '../components/form-fields';
 
 const errorStrings = {
-  'used_username': 'The specified username is alredy used'
+  default: 'Incorrect username or password'
 }
+
+const ErrorDialog = AlertDialog.errorDialog(errorStrings)
 
 class LoginPage extends React.Component {
   constructor() {
@@ -34,8 +36,10 @@ class LoginPage extends React.Component {
         password: this.state.user.password
       }).then(() => {
         window.location.href = '/'
-      }, ({data}) => {
+      }, (res) => {
         this.setState({loginDisabled: false})
+
+        ErrorDialog.showRejectedHttpPromise(res)
       })
     }
   }
