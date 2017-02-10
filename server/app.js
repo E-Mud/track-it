@@ -1,17 +1,29 @@
 import path from 'path';
+import express from 'express';
 import cookieParser from 'cookie-parser';
+
+import React from 'react';
+import {renderToString} from 'react-dom/server';
 
 import webpack from 'webpack';
 import webpackMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import config from '../webpack.config.js';
 
+import MainPage from '../client/main/component';
+
 import Auth from './users/auth';
 import socialAccountRouter from './social/social-account-router';
+
+import SocialAccountService from './social/social-account-service';
+import TrackService from './tracks/track-service';
 
 export default {
   server: (app) => {
     const isDeveloping = process.env.NODE_ENV !== 'production';
+
+    app.set('views', path.join(__dirname, 'views'));
+    app.set('view engine', 'pug');
 
     app.use(cookieParser());
 
@@ -41,7 +53,9 @@ export default {
     const clientPath = path.join(__dirname, '../client');
 
     app.use((req, res, next) => {
-      Auth.getPayload(req.cookies.authToken).then(
+      req.authToken = req.cookies.authToken
+
+      Auth.getPayload(req.authToken).then(
         ({user}) => {
           req.user = user
           next()
@@ -75,7 +89,23 @@ export default {
     })
     app.use('/', socialAccountRouter);
     app.get('/', (req, res) => {
-      res.sendFile(path.join(clientPath, 'main', 'index.html'))
+      Promise.all([
+        TrackService.getTracksByUserId(req.user._id),
+        SocialAccountService.getCompleteAccounts(req.user._id)
+      ]).then((result) => {
+        const trackList = result[0],
+          socialAccounts = result[1],
+          authToken = req.authToken,
+          markup = renderToString(<MainPage socialAccounts={socialAccounts} trackList={trackList} authToken={authToken}/>)
+
+          res.render('layout', {
+            title: 'Track',
+            stylesFile: 'main.css',
+            scriptFile: 'main.bundle.js',
+            props: {socialAccounts, trackList, authToken},
+            markup: markup
+          })
+      })
     });
 
     return app

@@ -14,6 +14,7 @@ export default {
       return res.data
     })
   },
+
   connectToUpdateStream: (callback) => {
     const options = {
       transports: ['websocket'],
@@ -24,7 +25,6 @@ export default {
     connectStream = io(window.location.hostname + ':' + window.location.port, options)
 
     connectStream.on('connect', () => {
-      console.log("Connected")
       connectStream.on('tracks/update', callback)
     })
   }

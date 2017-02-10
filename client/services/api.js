@@ -69,6 +69,6 @@ const readAuthTokenCookie = () => {
     return null;
 }
 
-api.setAuthToken(readAuthTokenCookie())
+// api.setAuthToken(readAuthTokenCookie())
 
 export default api;

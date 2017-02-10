@@ -1,5 +1,6 @@
-var path = require('path');
-var webpack = require('webpack');
+const path = require('path');
+const webpack = require('webpack');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 var javascriptEntryPath = path.resolve(__dirname, 'client', 'index.js');
 var buildPath = path.resolve(__dirname, 'public', 'build');
@@ -7,7 +8,8 @@ var clientDir = path.resolve(__dirname, 'client')
 
 let pages = {
   main: {
-    js: path.resolve(clientDir, 'main', 'index.js')
+    js: path.resolve(clientDir, 'main', 'index.js'),
+    style: path.resolve(clientDir, 'main', 'index.styl')
   },
   login: {
     js: path.resolve(clientDir, 'login', 'index.js')
@@ -21,6 +23,7 @@ module.exports = {
   entry: {
     main: [
       'webpack-hot-middleware/client?reload=true',
+      pages.main.style,
       pages.main.js
     ],
     login: [
@@ -48,10 +51,12 @@ module.exports = {
       loader: 'file?name=[path][name].[ext]',
     }, {
       test: /\.styl$/,
-      loader: 'style-loader!css-loader!stylus-loader'
+      // loader: 'style-loader!css-loader!stylus-loader'
+      loader: ExtractTextPlugin.extract("style-loader", "css-loader!stylus-loader")
     }],
   },
   plugins: [
+    new ExtractTextPlugin("[name].css"),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin()

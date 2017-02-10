@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    title= title
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.css")
+    link(rel="stylesheet" href=`/public/${stylesFile}`)
+  body
+    div#main-container !{markup}
+    div#modal-container
+    script(type="text/javascript") window.props=!{JSON.stringify(props)}
+    script(src=`public/${scriptFile}`)
