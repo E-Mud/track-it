@@ -6,6 +6,7 @@ import CreateTrack from '../components/create-track';
 import TrackList from '../components/track-list';
 import SectionHeader from '../components/section-header';
 import SocialAccountsCard from '../components/social-accounts-card';
+import AppBar from '../components/app-bar';
 
 class MainPage extends React.Component {
   constructor(props) {
@@ -39,17 +40,20 @@ class MainPage extends React.Component {
     const onTrackCreated = this.onTrackCreated.bind(this);
 
     return (
-      <div className={'flex-container full-height background center-start'}>
-        <div className={'flex-70 flex-container'}>
-          <div className={'flex-50 padded-base padded-large-right'}>
-            <SectionHeader className={'margin-base-bottom'} header={'Accounts'} />
-            <SocialAccountsCard socialAccounts={this.props.socialAccounts} />
-            <SectionHeader className={'margin-base-bottom margin-large-top'} header={'Tags'} />
-          </div>
-          <div className={'flex-50 padded-base padded-large-left'}>
-            <SectionHeader className={'margin-base-bottom'} header={'Tracks'} />
-            <CreateTrack onTrackCreated={onTrackCreated} />
-            <TrackList className={'margin-large-top'} trackList={this.props.trackList} />
+      <div className={'flex-container column full-height background'}>
+        <AppBar />
+        <div className={'flex-container padded-base-top center-start'}>
+          <div className={'flex-70 flex-container'}>
+            <div className={'flex-50 padded-base padded-large-right'}>
+              <SectionHeader className={'margin-base-bottom'} header={'Accounts'} />
+              <SocialAccountsCard socialAccounts={this.props.socialAccounts} />
+              <SectionHeader className={'margin-base-bottom margin-large-top'} header={'Tags'} />
+            </div>
+            <div className={'flex-50 padded-base padded-large-left'}>
+              <SectionHeader className={'margin-base-bottom'} header={'Tracks'} />
+              <CreateTrack onTrackCreated={onTrackCreated} />
+              <TrackList className={'margin-large-top'} trackList={this.props.trackList} />
+            </div>
           </div>
         </div>
       </div>

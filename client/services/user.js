@@ -2,9 +2,7 @@ import api from './api';
 
 export default {
   registerUser: (user) => {
-    return api.post('users/register', user).then((res) => {
-      return res.data
-    })
+    return api.post('users/register', user).then((res) => res.data)
   },
 
   login: (user) => {
@@ -12,5 +10,9 @@ export default {
       api.saveAuthToken(res.authToken)
       return res.data
     })
+  },
+
+  logout: () => {
+    return api.post('users/logout').then((res) => res.data)
   }
 }
