@@ -22,30 +22,44 @@ class LoginPage extends React.Component {
     }
   }
 
-  buttonClicked() {
-    this.setState({loginDisabled: true})
-    User.login({
-      username: this.state.user.username,
-      password: this.state.user.password
-    }).then(() => {
-      this.setState({loginDisabled: false})
-      window.location.href = '/'
-    }, ({data}) => {
-      this.setState({loginDisabled: false})
-    })
+  canLogin() {
+    return this.state.user.username && this.state.user.password
+  }
+
+  login() {
+    if(this.canLogin()){
+      this.setState({loginDisabled: true})
+      User.login({
+        username: this.state.user.username,
+        password: this.state.user.password
+      }).then(() => {
+        this.setState({loginDisabled: false})
+        window.location.href = '/'
+      }, ({data}) => {
+        this.setState({loginDisabled: false})
+      })
+    }
   }
 
   valueChanged() {
-    this.state.loginDisabled = !this.state.user.username || !this.state.user.password
+    this.state.loginDisabled = !this.canLogin()
 
     this.setState(this.state)
+  }
+
+  onKeyUp(e) {
+    if(e.key === 'Enter'){
+      this.login()
+    }
   }
 
   render() {
     let loginButtonDisabled = this.state.loginDisabled ? 'disabled' : '';
     let valueChanged = this.valueChanged.bind(this);
+    let onKeyUp = this.onKeyUp.bind(this);
+
     return (
-      <div className={'flex-container full-height background center-center'}>
+      <div className={'flex-container full-height background center-center'} onKeyUp={onKeyUp}>
         <Card className={'flex-25 padded-base'}>
           <div className={'padded-base'}>
             <FormFields.Input
@@ -66,7 +80,7 @@ class LoginPage extends React.Component {
           <div className={'flex-container padded-large-top button-group start-end'}>
             <a href={'/register'} className={'margin-base-horizontal sm-text'}>Not a member yet?</a>
             <span className={'flex'} />
-            <button onClick={this.buttonClicked.bind(this)} className={'full-raised primary'} disabled={loginButtonDisabled}>SIGN IN</button>
+            <button onClick={this.login.bind(this)} className={'full-raised primary'} disabled={loginButtonDisabled}>SIGN IN</button>
           </div>
         </Card>
       </div>

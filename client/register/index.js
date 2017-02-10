@@ -20,39 +20,53 @@ class RegisterPage extends React.Component {
     }
   }
 
-  buttonClicked() {
-    this.setState({registerDisabled: true})
-    User.registerUser({
-      username: this.state.username,
-      password: this.state.password
-    }).then(() => {
-      this.setState({registerDisabled: false})
+  canRegister() {
+    return this.state.username && this.state.password && this.state.password === this.state.confirmPassword
+  }
 
-      AlertDialog.show({
-        msg: 'User created succesfully'
-      }).then(() => window.location.href = '/login')
-    }, ({data}) => {
-      this.setState({registerDisabled: false})
+  register() {
+    if(this.canRegister()){
+      this.setState({registerDisabled: true})
+      User.registerUser({
+        username: this.state.username,
+        password: this.state.password
+      }).then(() => {
+        this.setState({registerDisabled: false})
 
-      AlertDialog.show({
-        msg: errorStrings[data.msg]
+        AlertDialog.show({
+          msg: 'User created succesfully'
+        }).then(() => window.location.href = '/login')
+      }, ({data}) => {
+        this.setState({registerDisabled: false})
+
+        AlertDialog.show({
+          msg: errorStrings[data.msg]
+        })
       })
-    })
+    }
   }
 
   valueChanged(event) {
     this.state[event.target.name] = event.target.value
 
-    this.state.registerDisabled = !this.state.username || !this.state.password || this.state.password !== this.state.confirmPassword
+    this.state.registerDisabled = !this.canRegister()
 
     this.setState(this.state)
+  }
+
+  onKeyUp(e) {
+    if(e.key === 'Enter'){
+      this.register()
+    }
   }
 
   render() {
     let registerButtonDisabled = this.state.registerDisabled ? 'disabled' : '';
     let valueChanged = this.valueChanged.bind(this);
+    let onKeyUp = this.onKeyUp.bind(this)
+
     return (
-      <div className={'flex-container full-height background center-center'}>
+      <div className={'flex-container full-height background center-center'} onKeyUp={onKeyUp}>
         <Card className={'flex-25 padded-base'}>
           <div className={'padded-base'}>
             <input
@@ -79,7 +93,7 @@ class RegisterPage extends React.Component {
               placeholder='Confirm Password' />
           </div>
           <div className={'flex-container padded-large-top button-group end-start'}>
-            <button onClick={this.buttonClicked.bind(this)} className={'full-raised primary'} disabled={registerButtonDisabled}>REGISTER</button>
+            <button onClick={this.register.bind(this)} className={'full-raised primary'} disabled={registerButtonDisabled}>REGISTER</button>
           </div>
         </Card>
       </div>
