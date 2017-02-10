@@ -29,7 +29,7 @@ services:
       - APP_SECRET=secret
       - TW_API_KEY=token
       - TW_API_SECRET=secret
-      - DB_HOST=db
+      - DB_HOST=testdb
       - DB_PORT=27017
       - DB_DATABASE=trackitdb
     links:
