@@ -19,6 +19,10 @@ const trackId = (suffix) => {
   return buildId('03', suffix)
 }
 
+const tagId = (suffix) => {
+  return buildId('04', suffix)
+}
+
 
 const newUser = {
   user: {_id: userId('001'), username: 'new_user@fix.com', password: '$2a$10$vBgl2fk7FRtYj4UECwG43etYUs.e9rBuDuwxnDOJk2m9UvKT1FCbC'},
@@ -56,10 +60,21 @@ const userWithTrackedAccount = {
     auth: twitterFixture.accounts[124].auth,
     userData: twitterFixture.accounts[124].userData
   },
+  tags: [
+    {
+      _id: tagId('030'), userId: userId('003'), name: 'short', tracksCount: 2,
+      tracking: {retweets: 22, favorites: 11}
+    },
+    {
+      _id: tagId('031'), userId: userId('003'), name: 'long', tracksCount: 1,
+      tracking: {retweets: 20, favorites: 10}
+    }
+  ],
   tracks: [
     {
       _id: trackId('030'), userId: userId('003'), socialAccountId: accountId('003'),
       url: 'https://twitter.com/e_muddy/status/1240',
+      tags: ['short'],
       contentItem: twitterFixture.tweets['1240'].data,
       contentItemId: twitterFixture.tweets['1240'].data.id_str,
       author: twitterFixture.accounts[124].userData.name,
@@ -69,6 +84,7 @@ const userWithTrackedAccount = {
     {
       _id: trackId('031'), userId: userId('003'), socialAccountId: accountId('003'),
       url: 'https://twitter.com/e_muddy/status/1241',
+      tags: ['short', 'long'],
       contentItem: twitterFixture.tweets['1241'].data,
       contentItemId: twitterFixture.tweets['1241'].data.id_str,
       author: twitterFixture.accounts[124].userData.name,
@@ -90,10 +106,21 @@ const userWithTrackedAccount2 = {
     auth: twitterFixture.accounts[125].auth,
     userData: twitterFixture.accounts[125].userData
   },
+  tags: [
+    {
+      _id: tagId('040'), userId: userId('004'), name: 'short', tracksCount: 2,
+      tracking: {retweets: 22, favorites: 11}
+    },
+    {
+      _id: tagId('041'), userId: userId('004'), name: 'long', tracksCount: 1,
+      tracking: {retweets: 20, favorites: 10}
+    }
+  ],
   tracks: [
     {
       _id: trackId('040'), userId: userId('004'), socialAccountId: accountId('004'),
       url: 'https://twitter.com/e_muddy/status/1250',
+      tags: ['short'],
       contentItem: twitterFixture.tweets['1250'].data,
       contentItemId: twitterFixture.tweets['1250'].data.id_str,
       author: twitterFixture.accounts[125].userData.name,
@@ -103,6 +130,7 @@ const userWithTrackedAccount2 = {
     {
       _id: trackId('041'), userId: userId('004'), socialAccountId: accountId('004'),
       url: 'https://twitter.com/e_muddy/status/1251',
+      tags: ['short', 'long'],
       contentItem: twitterFixture.tweets['1251'].data,
       contentItemId: twitterFixture.tweets['1251'].data.id_str,
       author: twitterFixture.accounts[125].userData.name,

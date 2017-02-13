@@ -19,16 +19,18 @@ describe('TrackService', () => {
     const user = fix.userWithAccount,
       track1230 = {
         userId: user.user._id.toString(),
+        tags: ['new'],
         url: fix.twitter.tweets['1230'].url
       }, track1231 = {
         userId: user.user._id.toString(),
         url: fix.twitter.tweets['1231'].url
       };
 
-    var tweetStub = null, tracksCollection = null;
+    var tweetStub = null, tracksCollection = null, tagsCollection = null;
 
     beforeEach((done) => {
       tracksCollection = DatabaseConnection.connection().get('tracks');
+      tagsCollection = DatabaseConnection.connection().get('tags');
       tweetStub = sinon.stub(twitterApi.prototype, 'statuses', twitterStub.getTweet)
 
       fix.insertFixtures(user).then(() => done())
@@ -87,6 +89,28 @@ describe('TrackService', () => {
 
       return TrackService.createTrack(trackToCreate).then((returnedTrack) => {
         expect(returnedTrack.tracking).to.deep.equal(fix.twitter.tweets['1230'].tracking)
+      })
+    })
+
+    it('creates/updates tag with track info', () => {
+      let trackToCreate = track1230
+
+      const expectedTag = {
+        name: 'new',
+        userId: user.user._id,
+        tracksCount: 1,
+        tracking: fix.twitter.tweets['1230'].tracking
+      }
+
+      return TrackService.createTrack(trackToCreate).then(() => {
+        return tagsCollection.find({name: 'new', userId: user.user._id}).then((found) => {
+          expect(found).to.have.lengthOf(1)
+
+          const tag = found[0]
+          expectedTag._id = tag._id
+
+          expect(tag).to.deep.equal(expectedTag)
+        })
       })
     })
 

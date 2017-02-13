@@ -1,7 +1,7 @@
 import monk from 'monk';
 import DatabaseConnection from '../db/database-connection.js';
 import SocialAccountService from '../social/social-account-service.js';
-
+import TagService from '../tags/tag-service.js';
 
 class TrackService {
   constructor() {
@@ -37,6 +37,12 @@ class TrackService {
             }
           })
         })
+      }).then((createdTrack) => {
+        if(createdTrack.tags && createdTrack.tags.length){
+          return TagService.tagTrack(createdTrack, createdTrack.tags).then(() => createdTrack)
+        }else{
+          return createdTrack
+        }
       })
     }
   }

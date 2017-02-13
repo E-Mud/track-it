@@ -20,6 +20,9 @@ export default Object.assign({}, fixtures, {
       if(fixt.tracks){
         promiseArray.push(DatabaseConnection.connection().get('tracks').insert(fixt.tracks))
       }
+      if(fixt.tags){
+        promiseArray.push(DatabaseConnection.connection().get('tags').insert(fixt.tags))
+      }
     })
 
     return Promise.all(promiseArray)
@@ -29,7 +32,8 @@ export default Object.assign({}, fixtures, {
     return Promise.all([
       DatabaseConnection.connection().get('users').remove({}),
       DatabaseConnection.connection().get('social_accounts').remove({}),
-      DatabaseConnection.connection().get('tracks').remove({})
+      DatabaseConnection.connection().get('tracks').remove({}),
+      DatabaseConnection.connection().get('tags').remove({})
     ])
   },
 
