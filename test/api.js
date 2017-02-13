@@ -233,4 +233,20 @@ describe('TrackIt API', () => {
       })
     })
   })
+
+  describe('/tags', () => {
+    describe('reading', () => {
+      beforeEach((done) => {
+        fix.insertFixtures([fix.userWithTrackedAccount, fix.userWithTrackedAccount2]).then(() => done())
+      })
+
+      it('reads user\'s tracks', () => {
+        const expectedTags = fix.parseObjectIds(fix.userWithTrackedAccount.tags)
+
+        return get('/tags', undefined, fix.userWithTrackedAccount).then((res) => {
+          expect(res.body).to.deep.equal(expectedTags)
+        })
+      })
+    })
+  })
 })

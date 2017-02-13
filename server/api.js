@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import Auth from './users/auth';
 import usersRouter from './users/user-router';
 import tracksRouter from './tracks/track-router';
+import tagsRouter from './tags/tag-router';
 import socialAccountApiRouter from './social/social-account-api-router';
 
 export default {
@@ -19,6 +20,7 @@ export default {
     })
     app.use('/api/tracks', tracksRouter);
     app.use('/api/accounts', socialAccountApiRouter);
+    app.use('/api/tags', tagsRouter);
 
     return app
   }
