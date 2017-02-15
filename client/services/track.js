@@ -25,7 +25,7 @@ export default {
     connectStream = io(window.location.hostname + ':' + window.location.port, options)
 
     connectStream.on('connect', () => {
-      connectStream.on('tracks/update', callback)
+      connectStream.on('tracking/update', callback)
     })
   }
 }

@@ -234,27 +234,12 @@ describe('TrackService', () => {
       })
     })
 
-    it('returns updated tracks mapped by user id', () => {
+    it('returns array of updated tracks', () => {
       return TrackService.updateTracks().then((result) => {
         return tracksCollection.find(
           {userId: {$in: [fix.userWithTrackedAccount.user._id, fix.userWithTrackedAccount2.user._id]}}
         ).then((tracks) => {
-          const count = {}, firstUserId = fix.userWithTrackedAccount.user._id.toString(),
-            secondUserId = fix.userWithTrackedAccount2.user._id.toString()
-
-          count[firstUserId] = 0
-          count[secondUserId] = 0
-
-          tracks.forEach((track) => {
-            const userTracks = result[track.userId.toString()]
-
-            count[track.userId.toString()]++
-
-            expect(userTracks).to.deep.include(track)
-          })
-
-          expect(result[firstUserId]).to.have.lengthOf(count[firstUserId])
-          expect(result[secondUserId]).to.have.lengthOf(count[secondUserId])
+          expect(result).to.deep.equal(tracks)
         })
       })
     })

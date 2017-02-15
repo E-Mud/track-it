@@ -16,9 +16,9 @@ class MainPage extends React.Component {
   }
 
   connectToUpdateStream() {
-    Track.connectToUpdateStream((updatedTracks) => {
+    Track.connectToUpdateStream((update) => {
       this.props.trackList.forEach((track) => {
-        const updatedTrack = updatedTracks.find((tr) => tr._id === track._id)
+        const updatedTrack = update.tracks.find((tr) => tr._id === track._id)
 
         if(updatedTrack){
           track.tracking = updatedTrack.tracking

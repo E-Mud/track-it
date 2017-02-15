@@ -46,8 +46,10 @@ describe('TagService', () => {
       collection = DatabaseConnection.connection().get('tags'),
       expectedTags = user.tags.map((tag) => {
         const newTag = Object.assign({}, tag)
-        newTag.tracking.retweets = tag.tracking.retweets + 10
-        newTag.tracking.favorites = tag.tracking.favorites + 10
+        newTag.tracking = {
+          retweets: tag.tracking.retweets + 10,
+          favorites: tag.tracking.favorites + 10
+        }
 
         return newTag
       });
@@ -64,11 +66,9 @@ describe('TagService', () => {
       })
     })
 
-    it('returns tags mapped by user id', () => {
-      const mappedTags = {[userId]: expectedTags}
-
+    it('returns array of tags', () => {
       return TagService.updateTags(expectedTags).then((returnedTags) => {
-        expect(returnedTags).to.deep.equal(mappedTags)
+        expect(returnedTags).to.deep.equal(expectedTags)
       })
     })
   })

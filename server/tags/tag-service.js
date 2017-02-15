@@ -14,25 +14,13 @@ class TagService {
     const writeOps = tags.map((tag) => {
       return {
         updateOne: {
-          filter: {_id: tag._id},
+          filter: {name: tag.name, userId: monk.id(tag.userId)},
           update: {$set: {tracking: tag.tracking}}
         }
       }
     })
 
-    return this.collection.bulkWrite(writeOps).then(() => {
-      return tags.reduce((acc, tag) => {
-        const userId = tag.userId.toString();
-
-        if(!acc[userId]){
-          acc[userId] = []
-        }
-
-        acc[userId].push(tag)
-
-        return acc
-      }, {})
-    })
+    return this.collection.bulkWrite(writeOps).then(() => tags)
   }
 
   tagTrack(track, tags) {

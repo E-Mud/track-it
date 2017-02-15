@@ -9,15 +9,23 @@ class TrackItStream {
     io.in(userId).emit(messageHead, message)
   }
 
-  notifyUpdatedTracks(userId, updatedTracks) {
-    const messageData = updatedTracks.map((track) => {
+  notifyUpdatedTracks(userId, notification) {
+    notification.tracks = notification.tracks.map((track) => {
       return {
         _id: track._id.toString(),
         tracking: track.tracking
       }
     })
+    if(notification.tags){
+      notification.tags = notification.tags.map((tag) => {
+        return {
+          name: tag.name,
+          tracking: tag.tracking
+        }
+      })      
+    }
 
-    this.emitToUser(userId, 'tracks/update', messageData)
+    this.emitToUser(userId, 'tracking/update', notification)
   }
 
   server(server) {

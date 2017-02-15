@@ -109,19 +109,21 @@ describe("TrackIt Stream", () => {
 
   it('notifies updated tracks', (done) => {
     const user = fix.userWithTrackedAccount;
-    const expectedMessage = user.tracks.map((track) => {
-      return {_id: track._id.toString(), tracking: track.tracking}
-    })
+    const expectedMessage = {
+      tracks: user.tracks.map((track) => {
+        return {_id: track._id.toString(), tracking: track.tracking}
+      })
+    }
 
     client = connect(user);
 
     client.on('connect', () => {
-      client.on('tracks/update', (data) => {
+      client.on('tracking/update', (data) => {
         expect(data).to.deep.equal(expectedMessage)
         done();
       })
 
-      TrackItStream.notifyUpdatedTracks(user.user._id.toString(), user.tracks)
+      TrackItStream.notifyUpdatedTracks(user.user._id.toString(), {tracks: user.tracks})
     })
   })
 })

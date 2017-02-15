@@ -96,19 +96,7 @@ class TrackService {
       }
     })
 
-    return this.collection.bulkWrite(writeOps).then(() => {
-      return updatedTracks.reduce((acc, track) => {
-        const userId = track.userId.toString();
-
-        if(!acc[userId]){
-          acc[userId] = []
-        }
-
-        acc[userId].push(track)
-
-        return acc
-      }, {})
-    })
+    return this.collection.bulkWrite(writeOps).then(() => updatedTracks)
   }
 
   updateTracks() {

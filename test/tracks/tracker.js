@@ -1,3 +1,4 @@
+import DatabaseConnection from '../../server/db/database-connection';
 import express from 'express';
 import http from 'http';
 import chai from 'chai';
@@ -9,10 +10,11 @@ import sinon from 'sinon';
 import Tracker from '../../server/tracks/tracker';
 import TrackService from '../../server/tracks/track-service';
 import io from 'socket.io-client';
-import fix from '../utils/fix'
+import fix from '../utils/fix';
+import _ from 'lodash';
 
 describe("Tracker", () => {
-  var client = null, server = null, updateStub = null;
+  var client = null, server = null, updateTracksStub = null, tagCollection = null;
 
   const socketURL = 'http://localhost:' + (process.env.PORT);
   const user = fix.userWithTrackedAccount;
@@ -23,6 +25,18 @@ describe("Tracker", () => {
     'force new connection': true
   }
 
+  const tracksMessage = user.tracks.map((track) => {
+    return Object.assign({}, track, {tracking: {retweets: track.tracking.retweets + 10, favorites: track.tracking.favorites + 10}})
+  }), expectedTagsMessage = user.tags.map((tag) => {
+    return {
+      name: tag.name,
+      tracking: {
+        retweets: tag.tracking.retweets + tag.tracksCount * 10,
+        favorites: tag.tracking.favorites + tag.tracksCount * 10
+      }
+    }
+  })
+
   const connect = () => {
     return io(socketURL, options)
   }
@@ -31,7 +45,15 @@ describe("Tracker", () => {
     server = http.Server(express());
     server = TrackItStream.server(server)
 
-    server.listen(process.env.PORT, () => done());
+    tagCollection = DatabaseConnection.connection().get('tags')
+
+    updateTracksStub = sinon.stub(TrackService, 'updateTracks', () => {
+      return Promise.resolve(tracksMessage)
+    })
+
+    fix.clean()
+      .then(() => fix.insertFixtures(user))
+      .then(() => server.listen(process.env.PORT, () => done()))
   })
 
   afterEach((done) => {
@@ -39,27 +61,53 @@ describe("Tracker", () => {
 
     client.disconnect()
 
-    updateStub.restore()
+    updateTracksStub.restore()
 
     server.close(() => done())
   })
 
   it('updates tracks and notifies', (done) => {
-    const expectedMessage = user.tracks.map((track) => {
-      return {_id: track._id.toString(), tracking: track.tracking}
-    })
-
-    updateStub = sinon.stub(TrackService, 'updateTracks', () => {
-      const userId = user.user._id.toString()
-      return Promise.resolve({[userId]: expectedMessage})
+    const expectedTracksMessage = tracksMessage.map((track) => {
+      return {
+        _id: track._id.toString(),
+        tracking: track.tracking
+      }
     })
 
     client = connect();
 
     client.on('connect', () => {
-      client.on('tracks/update', (data) => {
-        expect(data).to.deep.equal(expectedMessage)
+      client.on('tracking/update', (data) => {
+        expect(data.tracks).to.deep.equal(expectedTracksMessage)
         done();
+      })
+
+      Tracker.updateTracks()
+    })
+  })
+
+  it('notifies updated tags', (done) => {
+    client = connect();
+
+    client.on('connect', () => {
+      client.on('tracking/update', (data) => {
+        expect(data.tags).to.deep.equal(expectedTagsMessage)
+        done();
+      })
+
+      Tracker.updateTracks()
+    })
+  })
+
+  it('updates tags', (done) => {
+    client = connect();
+
+    client.on('connect', () => {
+      client.on('tracking/update', (data) => {
+        tagCollection.find({}, 'name tracking -_id').then((tags) => {
+          expect(tags).to.deep.equal(expectedTagsMessage)
+          done();
+        })
       })
 
       Tracker.updateTracks()
