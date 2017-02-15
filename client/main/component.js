@@ -7,6 +7,7 @@ import TrackList from '../components/track-list';
 import SectionHeader from '../components/section-header';
 import SocialAccountsCard from '../components/social-accounts-card';
 import AppBar from '../components/app-bar';
+import Tag from '../components/tag';
 
 class MainPage extends React.Component {
   constructor(props) {

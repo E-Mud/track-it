@@ -1,0 +1,24 @@
+$tagHoleWidth = 0.6rem
+$tagHoleHeight = $tagHoleWidth
+
+.tag
+  background: $primaryLighter
+  border-radius: $base
+  color: $white
+  display: inline-block
+  height: 1.6rem
+  line-height: 1.6rem
+  padding: 0 $base 0 ($base + $tagHoleWidth)
+  position: relative
+  text-decoration: none
+
+.tag::before
+  background: $white
+  border-radius: 50%
+  box-shadow: inset 0 1px rgba(0, 0, 0, 0.25)
+  content: ''
+  height: $tagHoleHeight
+  left: ($base / 2)
+  position: absolute
+  width: $tagHoleWidth
+  top: 5px
