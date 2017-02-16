@@ -10,7 +10,7 @@ class SectionHeader extends React.Component {
           <div className={'section-divider'}></div>
         </div>
         <div className={'secondary-text margin-base-horizontal'}>
-          {this.props.header}
+          {this.props.header || this.props.children}
         </div>
         <div className={'flex section-divider-container'}>
           <div className={'section-divider'}></div>

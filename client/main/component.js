@@ -8,6 +8,7 @@ import SectionHeader from '../components/section-header';
 import SocialAccountsCard from '../components/social-accounts-card';
 import AppBar from '../components/app-bar';
 import Tag from '../components/tag';
+import Icons from '../components/icons';
 import TagListCard from '../components/tag-list-card';
 
 class MainPage extends React.Component {
@@ -70,13 +71,22 @@ class MainPage extends React.Component {
         <div className={'scrollable flex-container padded-base-top center-start'}>
           <div className={'flex-70 flex-container'}>
             <div className={'flex-50 padded-base padded-large-right'}>
-              <SectionHeader className={'margin-base-bottom'} header={'Accounts'} />
+              <SectionHeader className={'margin-base-bottom'}>
+                <Icons.SocialAccount className={'margin-small-right'} />
+                Social Accounts
+              </SectionHeader>
               <SocialAccountsCard socialAccounts={this.props.socialAccounts} />
-              <SectionHeader className={'margin-base-bottom margin-large-top'} header={'Tags'} />
+              <SectionHeader className={'margin-base-bottom margin-large-top'}>
+                <Icons.Tag className={'margin-small-right'} />
+                Tags
+              </SectionHeader>
               {this.buildTagSection(this.props.tagList)}
             </div>
             <div className={'flex-50 padded-base padded-large-left'}>
-              <SectionHeader className={'margin-base-bottom'} header={'Tracks'} />
+              <SectionHeader className={'margin-base-bottom'}>
+                <Icons.Track className={'margin-small-right'} />
+                Tracks
+              </SectionHeader>
               {this.buildTrackSection(this.props.socialAccounts, this.props.trackList)}
             </div>
           </div>
