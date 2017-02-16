@@ -88,8 +88,8 @@ class TwitterService {
     })
   }
 
-  saveAccessData({_id, auth, userData, name, username}) {
-    return this.collection.findOne({'userData.id': userData.id}).then((foundAccount) => {
+  saveAccessData({_id, auth, userData, name, username, userId}) {
+    return this.collection.findOne({'userData.id': userData.id, userId}).then((foundAccount) => {
       if(foundAccount){
         return this.collection.findOneAndDelete(_id).then(() => foundAccount)
       }else{

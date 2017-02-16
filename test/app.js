@@ -111,6 +111,21 @@ describe('TrackIt App', () => {
       const twitterAccount = fix.twitter.accounts[124]
       const pendingAccount = fix.userWithPendingAccount.pendingAccount;
 
+      const expectedAccount = {
+        userId: fix.userWithPendingAccount.user._id,
+        pending: false,
+        type: SocialAccountService.TYPE.TWITTER,
+        name: twitterAccount.userData.name,
+        username: twitterAccount.userData.screen_name,
+        auth: {
+          requestToken: pendingAccount.auth.requestToken,
+          requestSecret: pendingAccount.auth.requestSecret,
+          accessToken: twitterAccount.auth.accessToken,
+          accessSecret: twitterAccount.auth.accessSecret
+        },
+        userData: twitterAccount.userData
+      }
+
       const goToCallback = (user, token) => {
         return goToPage('/twitter/callback', fix.userWithPendingAccount)
           .query({oauth_token: pendingAccount.auth.requestToken, oauth_verifier: 'verifier'})
@@ -129,7 +144,7 @@ describe('TrackIt App', () => {
         accessStub = sinon.stub(twitterApi.prototype, 'getAccessToken', accessStubMethod)
         verifyStub = sinon.stub(twitterApi.prototype, 'verifyCredentials', verifyStubMethod)
 
-        fix.insertFixtures(fix.userWithPendingAccount).then(() => done())
+        fix.insertFixtures([fix.userWithPendingAccount, fix.userWithTrackedAccount]).then(() => done())
       });
 
       afterEach(() => {
@@ -143,23 +158,10 @@ describe('TrackIt App', () => {
       })
 
       it('saves twitter info', () => {
-        const expectedAccount = {
-          userId: fix.userWithPendingAccount.user._id,
-          pending: false,
-          type: SocialAccountService.TYPE.TWITTER,
-          name: twitterAccount.userData.name,
-          username: twitterAccount.userData.screen_name,
-          auth: {
-            requestToken: pendingAccount.auth.requestToken,
-            requestSecret: pendingAccount.auth.requestSecret,
-            accessToken: twitterAccount.auth.accessToken,
-            accessSecret: twitterAccount.auth.accessSecret
-          },
-          userData: twitterAccount.userData
-        }
-
         return goToCallback().then(() => {
-          return accountCollection.find({'userData.id': expectedAccount.userData.id}).then((foundAccounts) => {
+          return accountCollection.find(
+            {'userData.id': expectedAccount.userData.id, userId: expectedAccount.userId}
+          ).then((foundAccounts) => {
             expect(foundAccounts).to.have.lengthOf(1);
 
             const account = foundAccounts[0];
@@ -171,9 +173,11 @@ describe('TrackIt App', () => {
       })
 
       it('doesn\'t duplicate/replace twitter account', () => {
-        return accountCollection.findOneAndUpdate({'userData.id': 123}, {$set: {'userData.id': 124}}).then((expectedAccount) => {
+        return accountCollection.findOneAndUpdate(
+          {'userData.id': 123, userId: expectedAccount.userId}, {$set: {'userData.id': 124}}
+        ).then((expectedAccount) => {
           return goToCallback().then(() => {
-            return accountCollection.find({'userData.id': 124}).then((foundAccounts) => {
+            return accountCollection.find({'userData.id': 124, userId: expectedAccount.userId}).then((foundAccounts) => {
               expect(foundAccounts).to.have.lengthOf(1);
 
               const account = foundAccounts[0];

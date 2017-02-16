@@ -4,6 +4,14 @@ import FaTwitter from 'react-icons/lib/fa/twitter'
 
 class SocialAccountsCard extends React.Component {
   render() {
+    let noAccountsMessage;
+
+    if(this.props.socialAccounts && this.props.socialAccounts.length){
+      noAccountsMessage = null
+    }else{
+      noAccountsMessage = <div className={'padded-base-left secondary-text'}>You have no social accounts</div>
+    }
+
     return (
       <Card>
         <div>
@@ -19,7 +27,9 @@ class SocialAccountsCard extends React.Component {
             )
           })}
         </div>
-        <div className={'flex-container end-center'}>
+        <div className={'flex-container start-center'}>
+          {noAccountsMessage}
+          <div className={'flex'} />
           <a href='/twitter/access' className={'primary button'}>ADD</a>
         </div>
       </Card>
