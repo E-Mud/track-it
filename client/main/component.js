@@ -37,9 +37,22 @@ class MainPage extends React.Component {
     })
   }
 
-  render() {
-    const onTrackCreated = this.onTrackCreated.bind(this);
+  buildTrackSection(socialAccounts, trackList) {
+    if(socialAccounts && socialAccounts.length){
+      const onTrackCreated = this.onTrackCreated.bind(this);
 
+      return <div>
+        <CreateTrack onTrackCreated={onTrackCreated} />
+        <TrackList className={'margin-large-top'} trackList={trackList} />
+      </div>
+    }else{
+      return <div className={'hint-text text-aligned-center'}>
+        You cannot track any content until you add a social account
+      </div>
+    }
+  }
+
+  render() {
     return (
       <div className={'flex-container column full-height background'}>
         <AppBar />
@@ -52,8 +65,7 @@ class MainPage extends React.Component {
             </div>
             <div className={'flex-50 padded-base padded-large-left'}>
               <SectionHeader className={'margin-base-bottom'} header={'Tracks'} />
-              <CreateTrack onTrackCreated={onTrackCreated} />
-              <TrackList className={'margin-large-top'} trackList={this.props.trackList} />
+              {this.buildTrackSection(this.props.socialAccounts, this.props.trackList)}
             </div>
           </div>
         </div>
