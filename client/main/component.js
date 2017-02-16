@@ -8,6 +8,7 @@ import SectionHeader from '../components/section-header';
 import SocialAccountsCard from '../components/social-accounts-card';
 import AppBar from '../components/app-bar';
 import Tag from '../components/tag';
+import TagListCard from '../components/tag-list-card';
 
 class MainPage extends React.Component {
   constructor(props) {
@@ -52,6 +53,16 @@ class MainPage extends React.Component {
     }
   }
 
+  buildTagSection(tagList) {
+    if(tagList && tagList.length){
+      return <TagListCard tagList={tagList} />
+    }else{
+      return <div className={'hint-text text-aligned-center'}>
+        You have no tags. Try adding some when creating a track
+      </div>
+    }
+  }
+
   render() {
     return (
       <div className={'flex-container column full-height background'}>
@@ -62,6 +73,7 @@ class MainPage extends React.Component {
               <SectionHeader className={'margin-base-bottom'} header={'Accounts'} />
               <SocialAccountsCard socialAccounts={this.props.socialAccounts} />
               <SectionHeader className={'margin-base-bottom margin-large-top'} header={'Tags'} />
+              {this.buildTagSection(this.props.tagList)}
             </div>
             <div className={'flex-50 padded-base padded-large-left'}>
               <SectionHeader className={'margin-base-bottom'} header={'Tracks'} />

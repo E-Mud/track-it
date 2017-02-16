@@ -17,6 +17,7 @@ import socialAccountRouter from './social/social-account-router';
 
 import SocialAccountService from './social/social-account-service';
 import TrackService from './tracks/track-service';
+import TagService from './tags/tag-service';
 
 export default {
   server: (app) => {
@@ -91,18 +92,20 @@ export default {
     app.get('/', (req, res) => {
       Promise.all([
         TrackService.getTracksByUserId(req.user._id),
-        SocialAccountService.getCompleteAccounts(req.user._id)
+        SocialAccountService.getCompleteAccounts(req.user._id),
+        TagService.getAllTags(req.user._id)
       ]).then((result) => {
         const trackList = result[0],
           socialAccounts = result[1],
+          tagList = result[2],
           authToken = req.authToken,
-          markup = renderToString(<MainPage socialAccounts={socialAccounts} trackList={trackList} authToken={authToken}/>)
+          markup = renderToString(<MainPage socialAccounts={socialAccounts} trackList={trackList} authToken={authToken} tagList={tagList}/>)
 
           res.render('layout', {
             title: 'Track',
             stylesFile: 'main.css',
             scriptFile: 'main.bundle.js',
-            props: {socialAccounts, trackList, authToken},
+            props: {socialAccounts, trackList, authToken, tagList},
             markup: markup
           })
       })
