@@ -1,8 +1,7 @@
 import React from 'react';
 import Divider from '../divider'
 import Tag from '../tag'
-import FaRetweet from 'react-icons/lib/fa/retweet'
-import FaHeart from 'react-icons/lib/fa/heart'
+import Tracking from '../tracking'
 
 class Track extends React.Component {
   buildPreviewHtml(track) {
@@ -56,14 +55,7 @@ class Track extends React.Component {
         <div className={'tracking-container padded-base flex flex-container start-center'}>
           {tagsContainer}
           <div className={'flex'}/>
-          <div className={'primary-text margin-base-right'}>
-            <FaRetweet size={18} className={'icon'}/>
-            <span className={'margin-small-left'}>{track.tracking.retweets}</span>
-          </div>
-          <div className={'primary-text'}>
-            <FaHeart size={18} className={'icon'}/>
-            <span className={'margin-small-left'}>{track.tracking.retweets}</span>
-          </div>
+          <Tracking track={track} />
         </div>
       </div>
     )
