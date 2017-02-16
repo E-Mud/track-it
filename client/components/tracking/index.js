@@ -8,7 +8,7 @@ class Tracking extends React.Component {
     let tracksCount;
 
     if(track.tracksCount || track.tracksCount === 0){
-      tracksCount = <div className={'primary-text margin-base-right'}>
+      tracksCount = <div className={'primary-text margin-large-right'}>
         <Icons.Track/>
         <span className={'margin-small-left'}>{track.tracksCount}</span>
       </div>

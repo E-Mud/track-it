@@ -15,7 +15,7 @@ class TagListCard extends React.Component {
             return (
               <div key={tag._id}>
                 {divider}
-                <div className={'padded-base-horizontal padded-large-vertical flex-container start-center'}>
+                <div className={'padded-base-left padded-large-right padded-large-vertical flex-container start-center'}>
                   <Tag tag={tag} />
                   <div className={'flex'} />
                   <Tracking track={tag} />
