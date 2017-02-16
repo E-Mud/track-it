@@ -51,8 +51,15 @@ module.exports = {
       loader: 'file?name=[path][name].[ext]',
     }, {
       test: /\.styl$/,
-      // loader: 'style-loader!css-loader!stylus-loader'
       loader: ExtractTextPlugin.extract("style-loader", "css-loader!stylus-loader")
+    },
+    {
+      test: /\.(eot|otf|svg|ttf|woff|woff2)$/,
+      loader: 'file?name=[path][name].[ext]'
+    },
+    {
+      test: /\.jpg$/,
+      loader: 'file?name=[path][name].[ext]'
     }],
   },
   plugins: [

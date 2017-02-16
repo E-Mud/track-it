@@ -62,30 +62,33 @@ class LoginPage extends React.Component {
     let onKeyUp = this.onKeyUp.bind(this);
 
     return (
-      <div className={'flex-container full-height background center-center'} onKeyUp={onKeyUp}>
-        <Card className={'flex-25 padded-base'}>
-          <div className={'padded-base'}>
-            <FormFields.Input
-              type='email'
-              model={this.state.user}
-              onChange={valueChanged}
-              name={'username'}
-              placeholder='Email' />
-          </div>
-          <div className={'padded-base'}>
-            <FormFields.Input
-              type={'password'}
-              model={this.state.user}
-              onChange={valueChanged}
-              name={'password'}
-              placeholder='Password' />
-          </div>
-          <div className={'flex-container padded-large-top button-group start-end'}>
-            <a href={'/register'} className={'margin-base-horizontal sm-text'}>Not a member yet?</a>
-            <span className={'flex'} />
-            <button onClick={this.login.bind(this)} className={'full-raised primary'} disabled={loginButtonDisabled}>SIGN IN</button>
-          </div>
-        </Card>
+      <div className={'flex-container full-height center-center'} onKeyUp={onKeyUp}>
+        <div className={'flex-25 main-content'}>
+          <div className={'margin-base-bottom xl-text white-text main-text text-aligned-center alt-font bold-text'}>TrackIt</div>
+          <Card className={'padded-base'}>
+            <div className={'padded-base'}>
+              <FormFields.Input
+                type='email'
+                model={this.state.user}
+                onChange={valueChanged}
+                name={'username'}
+                placeholder='Email' />
+            </div>
+            <div className={'padded-base'}>
+              <FormFields.Input
+                type={'password'}
+                model={this.state.user}
+                onChange={valueChanged}
+                name={'password'}
+                placeholder='Password' />
+            </div>
+            <div className={'flex-container padded-large-top button-group start-end'}>
+              <a href={'/register'} className={'margin-base-horizontal sm-text'}>Not a member yet?</a>
+              <span className={'flex'} />
+              <button onClick={this.login.bind(this)} className={'full-raised primary'} disabled={loginButtonDisabled}>SIGN IN</button>
+            </div>
+          </Card>
+        </div>
       </div>
     );
   }

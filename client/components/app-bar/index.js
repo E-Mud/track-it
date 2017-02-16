@@ -16,7 +16,7 @@ class AppBar extends React.Component {
         <div className={'flex-container full-height padded-base start-center'}>
           <div className={'flex-20'}></div>
           <div className={'flex flex-container center-center'}>
-            <span className={'main-text app-title'}>Track It</span>
+            <span className={'main-text app-title alt-font bold-text'}>TrackIt</span>
           </div>
           <div className={'flex-20 flex-container end-center padded-base-right'}>
             <button className={'icon-button'} onClick={this.logout}>

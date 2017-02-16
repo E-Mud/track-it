@@ -1,5 +1,18 @@
 @require './colors.styl'
 
+@font-face
+  font-family AppFont
+  font-style normal
+  src url(../styles/LatoRegular.ttf)
+
+@font-face
+  font-family AppFontAlt
+  font-style normal
+  src url(../styles/KuraleRegular.otf)
+
+html
+  font-family: AppFont
+
 .primary-text
   color: $primary
 
@@ -18,21 +31,30 @@
 .l-text
   font-size: 1.8rem
 
+.xl-text
+  font-size: 2rem
+
+.bold-text
+  font-weight: bold
+
 .text-aligned-center
   text-align: center
 
 .white-text
-  .main-text
+  &.main-text, .main-text
     color: $white
     opacity: $mainWhiteTextOpacity
 
-  .secondary-text
+  &.secondary-text, .secondary-text
     color: $white
     opacity: $secondaryWhiteTextOpacity
 
-  .disabled-text, .hint-text
+  &.disabled-text, .disabled-text, &.hint-text, .hint-text
     color: $white
     opacity: $disabledWhiteTextOpacity
+
+.alt-font
+  font-family: AppFontAlt
 
 a
   color: $primary
