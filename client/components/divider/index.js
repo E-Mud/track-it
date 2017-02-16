@@ -2,10 +2,10 @@ import React from 'react';
 
 class Divider extends React.Component {
   render() {
-    const track = this.props.track;
+    const directionClass = this.props.direction === 'vertical' ? 'vertical' : 'horizontal';
 
     return (
-      <div className={'divider'}></div>
+      <div className={'divider ' + directionClass}></div>
     )
   }
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import Divider from '../divider'
+import Tag from '../tag'
 import FaRetweet from 'react-icons/lib/fa/retweet'
 import FaHeart from 'react-icons/lib/fa/heart'
 
@@ -27,8 +28,24 @@ class Track extends React.Component {
   render() {
     const track = this.props.track;
 
+    let tagsContainer;
+
+    if(track.tags && track.tags.length){
+      tagsContainer = <div className={'tags-container'}>
+          {
+            track.tags.map((tag) => {
+              return (
+                <Tag className={'margin-base-right'} tag={tag} key={tag} />
+              );
+            })
+          }
+        </div>
+    }else{
+      tagsContainer = null
+    }
+
     return (
-      <div className={'track-comp flex-container'}>
+      <div className={'track-comp flex-container column'}>
         <div className={'preview-container flex padded-base'}>
           <div className={'secondary-text margin-base-bottom'}>{track.author}</div>
           <div className={'main-text'} dangerouslySetInnerHTML={{__html: this.previewHtml}}></div>
@@ -36,14 +53,16 @@ class Track extends React.Component {
 
         <Divider />
 
-        <div className={'tracking-container padded-base flex-15 flex-container column'}>
-          <div className={'flex primary-text margin-base-bottom'}>
+        <div className={'tracking-container padded-base flex flex-container start-center'}>
+          {tagsContainer}
+          <div className={'flex'}/>
+          <div className={'primary-text margin-base-right'}>
             <FaRetweet size={18} className={'icon'}/>
-            <span className={'margin-base-left'}>{track.tracking.retweets}</span>
+            <span className={'margin-small-left'}>{track.tracking.retweets}</span>
           </div>
-          <div className={'flex primary-text'}>
+          <div className={'primary-text'}>
             <FaHeart size={18} className={'icon'}/>
-            <span className={'margin-base-left'}>{track.tracking.retweets}</span>
+            <span className={'margin-small-left'}>{track.tracking.retweets}</span>
           </div>
         </div>
       </div>
