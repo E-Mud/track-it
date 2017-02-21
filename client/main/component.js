@@ -1,32 +1,64 @@
 import React from 'react';
-import Track from '../services/track';
 import API from '../services/api';
+import Track from '../services/track';
+import Tag from '../services/tag'
 import SocialAccount from '../services/social-account';
 import CreateTrack from '../components/create-track';
 import TrackList from '../components/track-list';
 import SectionHeader from '../components/section-header';
 import SocialAccountsCard from '../components/social-accounts-card';
 import AppBar from '../components/app-bar';
-import Tag from '../components/tag';
 import Icons from '../components/icons';
 import TagListCard from '../components/tag-list-card';
+
+class MainPageState {
+  constructor(trackList, socialAccounts, tagList){
+    this.trackList = trackList || []
+    this.socialAccounts = socialAccounts || []
+    this.tagList = tagList || []
+  }
+
+  addTrack(track){
+    this.trackList.push(track)
+  }
+
+  updateTracks(tracks){
+    this.trackList.forEach((track) => {
+      const updatedTrack = tracks.find((tr) => tr._id === track._id)
+
+      if(updatedTrack){
+        track.tracking = updatedTrack.tracking
+      }
+    })
+  }
+
+  updateTags(tags){
+    this.tagList.forEach((tag) => {
+      const updatedTag = tags.find((tg) => tg._id === tag._id)
+
+      if(updatedTag){
+        if(updatedTag.tracksCount){
+          tag.tracksCount = updatedTag.tracksCount
+        }
+        tag.tracking = updatedTag.tracking
+      }
+    })
+  }
+}
 
 class MainPage extends React.Component {
   constructor(props) {
     super(props);
+
+    this.mainPageState = new MainPageState(this.props.trackList, this.props.socialAccounts, this.props.tagList)
 
     API.setAuthToken(this.props.authToken)
   }
 
   connectToUpdateStream() {
     Track.connectToUpdateStream((update) => {
-      this.props.trackList.forEach((track) => {
-        const updatedTrack = update.tracks.find((tr) => tr._id === track._id)
-
-        if(updatedTrack){
-          track.tracking = updatedTrack.tracking
-        }
-      })
+      this.mainPageState.updateTracks(update.tracks)
+      this.mainPageState.updateTags(update.tags)
 
       this.forceUpdate()
     })
@@ -34,9 +66,10 @@ class MainPage extends React.Component {
 
   onTrackCreated(trackToCreate, creationPromise) {
     creationPromise.then((newTrack) => {
-      this.props.trackList.push(newTrack)
-      this.forceUpdate();
-    })
+      this.mainPageState.addTrack(newTrack)
+
+      return Tag.getTags().then((tagList) => this.mainPageState.updateTags(tagList))
+    }).then(() => this.forceUpdate())
   }
 
   buildTrackSection(socialAccounts, trackList) {
